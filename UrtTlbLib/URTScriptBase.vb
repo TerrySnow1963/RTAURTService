@@ -52,6 +52,7 @@ Public MustInherit Class ConScalarBase
 
     Private _name As String
     Private _description As String
+    Private _options As Integer
     Public Property Description As String Implements IUrtData.Description
         Get
             Return _description
@@ -83,8 +84,9 @@ Public MustInherit Class ConScalarBase
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub PutOptions(opt1 As Integer, opt2 As Integer, str As String) Implements IUrtData.PutOptions
-        Throw New NotImplementedException()
+    Public Sub PutOptions(WhichOptions As Integer, SetOptions As Integer, ByRef str As String) Implements IUrtData.PutOptions
+        'ToDo align with Honeywell, only the Which Option
+        _options = SetOptions
     End Sub
 
     Public Sub PutSecurityOptions(val1 As Integer, val2 As Integer, val3 As String) Implements IUrtData.PutSecurityOptions
@@ -149,11 +151,23 @@ End Class
 
 Public Class ConEnum
     Inherits ConScalarBase
+    Implements IUrtEnum
 
     Public Val As Integer
 
+    Private _EnumType As String
+
+    Public Property EnumType As String Implements IUrtEnum.EnumType
+        Get
+            Return _EnumType
+        End Get
+        Set(value As String)
+            _EnumType = value
+        End Set
+    End Property
+
     Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
-        Throw New NotImplementedException()
+        Val = CInt(o)
     End Sub
 End Class
 
@@ -203,7 +217,7 @@ Public Interface IUrtData
     Sub PutSecurityOptions(ByVal val1 As Integer, ByVal val2 As Integer, ByVal val3 As String)
     Function Size() As Integer
     Function Size(buf As Byte()) As Integer
-    Sub PutOptions(ByVal opt1 As Integer, ByVal opt2 As Integer, ByVal str As String)
+    Sub PutOptions(ByVal opt1 As Integer, ByVal opt2 As Integer, ByRef str As String)
     Sub PutVariantValue(ByVal o As Object, ByVal str As String)
     Property Name As String
     Property Description As String
@@ -246,6 +260,8 @@ Public Class CUrtFBBase
                 base = New ConInt
             Case GetType(ConFloatClass).GUID
                 base = New ConFloat
+            Case GetType(ConEnumClass).GUID
+                base = New ConEnum
             Case Else
                 Throw New Exception(String.Format("Error when trying to connect <{0}> : Unhandled GUID"))
         End Select

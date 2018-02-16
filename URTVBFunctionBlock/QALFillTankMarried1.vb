@@ -65,21 +65,21 @@ Namespace URT
 
                 QALUtil.URTScale3(Of ConString)("Note", "ToDo - Write Implementation Note", GetType(ConStringClass).GUID, bInit, "", CmpPtr)
 
-                'inAuto = QALUtil.URTScale3(Of ConEnum)("inAuto", "inAuto - Desc", GetType(ConEnumClass).GUID, bInit, False, CmpPtr, "urtNOYES")
+                inAuto = QALUtil.URTScale3(Of ConEnum)("inAuto", "inAuto - Desc", GetType(ConEnumClass).GUID, bInit, False, CmpPtr, "urtNOYES")
 
-                'inTankMarriedMode = QALUtil.URTScale3(Of ConEnum)("inTankMarriedMode", "AUTO: Set by delta level, MARRIED: forced to be married, DIVORCED: Forced to be divorced", _
-                '                            GetType(ConEnumClass).GUID, bInit, qalTankMarriedMode.AUTO, CmpPtr, "qalTankMarriedMode")
+                inTankMarriedMode = QALUtil.URTScale3(Of ConEnum)("inTankMarriedMode", "AUTO: Set by delta level, MARRIED: forced to be married, DIVORCED: Forced to be divorced",
+                                            GetType(ConEnumClass).GUID, bInit, qalTankMarriedMode.AUTO, CmpPtr, "qalTankMarriedMode")
 
-                'outTankMarriedStatus = QALUtil.URTScale3(Of ConEnum)("outTankMarriedStatus", "Married or Divorced", _
-                '                            GetType(ConEnumClass).GUID, bInit, qalTankMarriedStatus.MARRIED, CmpPtr, "qalTankMarriedStatus")
+                outTankMarriedStatus = QALUtil.URTScale3(Of ConEnum)("outTankMarriedStatus", "Married or Divorced",
+                                            GetType(ConEnumClass).GUID, bInit, qalTankMarriedStatus.MARRIED, CmpPtr, "qalTankMarriedStatus")
 
                 inFillEast = QALUtil.URTScale3(Of ConFloat)("inFillEast", "inFillEast - Desc", GetType(ConFloatClass).GUID, bInit, 0.0, CmpPtr, , 2228224)
-                'inFillWest = QALUtil.URTScale3(Of ConFloat)("inFillWest", "inFillWest - Desc", GetType(ConFloatClass).GUID, bInit, 0.0, CmpPtr, , 2228224)
-                'DivorcedTrip = QALUtil.URTScale3(Of ConFloat)("DivorcedTrip", "DivorcedTrip - Desc", GetType(ConFloatClass).GUID, bInit, 5.0, CmpPtr)
-                'MarriedTrip = QALUtil.URTScale3(Of ConFloat)("MarriedTrip", "MarriedTrip - Desc", GetType(ConFloatClass).GUID, bInit, 3.0, CmpPtr)
+                inFillWest = QALUtil.URTScale3(Of ConFloat)("inFillWest", "inFillWest - Desc", GetType(ConFloatClass).GUID, bInit, 0.0, CmpPtr, , 2228224)
+                DivorcedTrip = QALUtil.URTScale3(Of ConFloat)("DivorcedTrip", "DivorcedTrip - Desc", GetType(ConFloatClass).GUID, bInit, 5.0, CmpPtr)
+                MarriedTrip = QALUtil.URTScale3(Of ConFloat)("MarriedTrip", "MarriedTrip - Desc", GetType(ConFloatClass).GUID, bInit, 3.0, CmpPtr)
                 'inDeltaMode = QALUtil.URTArray3("inDeltaMode", "Array of the HID Feed valve Cascade Modes", GetType(ConArrayBoolClass).GUID, 4, bInit, True, CmpPtr, , 2228224)
 
-                'outIsMarried = QALUtil.URTScale3(Of ConEnum)("outIsMarried", "outIsMarried - Desc", GetType(ConEnumClass).GUID, bInit, False, CmpPtr, "urtNOYES")
+                outIsMarried = QALUtil.URTScale3(Of ConEnum)("outIsMarried", "outIsMarried - Desc", GetType(ConEnumClass).GUID, bInit, False, CmpPtr, "urtNOYES")
                 outStatus = QALUtil.URTScale3(Of ConString)("outStatus", "outStatus - Desc", GetType(ConStringClass).GUID, bInit, "Divorced", CmpPtr)
 
                 'If bInit Then

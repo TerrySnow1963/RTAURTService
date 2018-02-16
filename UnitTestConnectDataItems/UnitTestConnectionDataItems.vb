@@ -50,6 +50,23 @@ Imports URTVBFunctionBlock
 
     End Sub
 
+    <TestMethod()> Public Sub TestConnectConEnum()
+
+        Dim urtVBFB = New URTVBFunctionBlock.URTVBFunctionBlock
+
+        urtVBFB.Connect(True)
+
+        Dim inAuto As ConEnum
+        inAuto = urtVBFB.GetElement("inAuto")
+
+        Assert.AreEqual("inAuto", CType(inAuto, IUrtData).Name)
+        Assert.AreEqual("inAuto - Desc", CType(inAuto, IUrtData).Description)
+
+        Dim expectedVal As URTVBFunctionBlock.URT.urtNOYES = URTVBFunctionBlock.URT.urtNOYES.NO
+        Assert.AreEqual(CInt(expectedVal), inAuto.Val)
+
+    End Sub
+
     <TestMethod()> Public Sub TestConnectAllElements()
 
         Dim urtVBFB = New URTVBFunctionBlock.URTVBFunctionBlock
@@ -57,7 +74,8 @@ Imports URTVBFunctionBlock
         urtVBFB.Connect(True)
 
         Dim elementNames() As String = {"ClearError", "FBExecTime",
-            "FBErrors", "Note", "outStatus", "inFillEast"}
+            "FBErrors", "Note", "outStatus", "inFillEast", "inFillWest", "DivorcedTrip", "MarriedTrip",
+            "inAuto", "inTankMarriedMode", "outTankMarriedStatus", "outIsMarried"}
 
         Dim element As IUrtData
 
