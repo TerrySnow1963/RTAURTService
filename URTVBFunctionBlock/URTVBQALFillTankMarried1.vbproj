@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E8F797E2-2142-4310-B012-68C6BC59E86B}</ProjectGuid>
+    <ProjectGuid>{564FBC7F-6539-4FFB-9A29-564748A7DEC9}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>RTAURTService</RootNamespace>
-    <AssemblyName>RTAURTService</AssemblyName>
+    <RootNamespace>URTVBFunctionBlock</RootNamespace>
+    <AssemblyName>URTVBFunctionBlock</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
@@ -18,7 +18,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>RTAURTService.xml</DocumentationFile>
+    <DocumentationFile>URTVBFunctionBlock.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -27,7 +27,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>RTAURTService.xml</DocumentationFile>
+    <DocumentationFile>URTVBFunctionBlock.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -63,7 +63,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RTAURTService.vb" />
+    <Compile Include="QALFillTankMarried1.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -79,7 +79,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="URTVBFunctionBlock.vb" />
+    <Compile Include="URTVBQALFillTankMarried1.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -101,6 +101,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RTAURTService\RTAURTService.vbproj">
+      <Project>{e8f797e2-2142-4310-b012-68c6bc59e86b}</Project>
+      <Name>RTAURTService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\UrtTlbLib\UrtTlbLib.vbproj">
       <Project>{864c6ba0-cc3f-4cfa-ad3e-647f47981f78}</Project>
       <Name>UrtTlbLib</Name>

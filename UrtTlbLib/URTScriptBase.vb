@@ -19,9 +19,11 @@ Public Enum conOPTIONS
     doDEFAULTS = 0
 End Enum
 
-Public Class URTBuf
-    Public Shared dbWORK As Byte()
-End Class
+Public Enum urtBUF
+    dbWork = 0
+    dbInput = 1
+    dbOutput = 2
+End Enum
 
 Public MustInherit Class CVBScriptBase
     Protected _CmpPtr As IUrtTreeMember
@@ -46,7 +48,7 @@ Public MustInherit Class CVBScriptBase
 End Class
 
 
-Public MustInherit Class ConScalarBase
+Public MustInherit Class con_data(Of T)
     Implements IUrtData
     Implements IUrtTreeMember
 
@@ -62,14 +64,14 @@ Public MustInherit Class ConScalarBase
         End Set
     End Property
 
-    Default Public Property Index(x As Integer) As Integer Implements IUrtTreeMember.Index
-        Get
-            Throw New NotImplementedException()
-        End Get
-        Set(value As Integer)
-            Throw New NotImplementedException()
-        End Set
-    End Property
+    'Default Public Property Index(x As Integer) As Integer Implements IUrtTreeMember.Index
+    '    Get
+    '        Throw New NotImplementedException()
+    '    End Get
+    '    Set(value As Integer)
+    '        Throw New NotImplementedException()
+    '    End Set
+    'End Property
 
     Public Property Name As String Implements IUrtData.Name
         Get
@@ -80,9 +82,12 @@ Public MustInherit Class ConScalarBase
         End Set
     End Property
 
-    Public Sub AddChild(child As IUrtTreeMember) Implements IUrtTreeMember.AddChild
+    Public Function GetOrCreateChildElement(ByVal name As String,
+                                ByVal description As String,
+                                ByVal myType As System.Guid,
+                                ByVal iSize As Integer) As IUrtTreeMember Implements IUrtTreeMember.GetOrCreateChildElement
         Throw New NotImplementedException()
-    End Sub
+    End Function
 
     Public Sub PutOptions(WhichOptions As Integer, SetOptions As Integer, ByRef str As String) Implements IUrtData.PutOptions
         'ToDo align with Honeywell, only the Which Option
@@ -101,16 +106,90 @@ Public MustInherit Class ConScalarBase
         Throw New NotImplementedException()
     End Function
 
-    Public Function Size(buf() As Byte) As Integer Implements IUrtData.Size
+    Public Function Size(whichBuf As urtBUF) As Integer Implements IUrtData.Size
         Throw New NotImplementedException()
     End Function
 
     Protected MustOverride Sub PutVariantValueInternal(o As Object, str As String)
 End Class
 
+Public MustInherit Class con_array(Of T)
+    Implements IUrtData
+    Implements IUrtTreeMember
+
+    Protected _data() As T
+
+    Private _name As String
+    Private _description As String
+    Private _options As Integer
+    Public Property Description As String Implements IUrtData.Description
+        Get
+            Return _description
+        End Get
+        Set(value As String)
+            _description = value
+        End Set
+    End Property
+
+    'Default Public Property Index(ii As Integer) As Integer Implements IUrtTreeMember.Index
+    '    Get
+    '        Return _data(ii)
+    '    End Get
+    '    Set(value As Integer)
+    '        Throw New NotImplementedException()
+    '    End Set
+    'End Property
+
+    Default Public Property Item(ii As Integer) As T
+        Get
+            Return _data(ii)
+        End Get
+        Set(value As T)
+            _data(ii) = value
+        End Set
+    End Property
+    Public Property Name As String Implements IUrtData.Name
+        Get
+            Return _name
+        End Get
+        Set(value As String)
+            _name = value
+        End Set
+    End Property
+
+    Public Function GetOrCreateChildElement(ByVal name As String,
+                                ByVal description As String,
+                                ByVal myType As System.Guid,
+                                ByVal iSize As Integer) As IUrtTreeMember Implements IUrtTreeMember.GetOrCreateChildElement
+        Throw New NotImplementedException()
+    End Function
+
+    Public Sub PutOptions(WhichOptions As Integer, SetOptions As Integer, ByRef str As String) Implements IUrtData.PutOptions
+        'ToDo align with Honeywell, only the Which Option
+        _options = SetOptions
+    End Sub
+
+    Public Sub PutSecurityOptions(val1 As Integer, val2 As Integer, val3 As String) Implements IUrtData.PutSecurityOptions
+        Throw New NotImplementedException()
+    End Sub
+
+    Public Sub PutVariantValue(o As Object, str As String) Implements IUrtData.PutVariantValue
+        PutVariantValueInternal(o, str)
+    End Sub
+
+    Public Function Size() As Integer Implements IUrtData.Size
+        Return _data.Length
+    End Function
+
+    Protected MustOverride Sub PutVariantValueInternal(o As Object, str As String)
+
+    Public Function Size(whichBuf As urtBUF) As Integer Implements IUrtData.Size
+        Return _data.Length
+    End Function
+End Class
 
 Public Class ConString
-    Inherits ConScalarBase
+    Inherits con_data(Of String)
     Public val As String
 
     Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
@@ -123,7 +202,7 @@ Public Class ConStringClass
 End Class
 
 Public Class ConInt
-    Inherits ConScalarBase
+    Inherits con_data(Of Integer)
     Public Val As Integer
     Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
         Val = CInt(o)
@@ -135,7 +214,7 @@ Public Class ConIntClass
 End Class
 
 Public Class ConBool
-    Inherits ConScalarBase
+    Inherits con_data(Of Boolean)
     Public Val As Boolean
 
     Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
@@ -146,36 +225,89 @@ End Class
 Public Class ConBoolClass
 End Class
 
+Public Class ConArrayBool
+    Inherits con_array(Of Boolean)
+    Implements IURTArray
+
+    Private Sub New()
+
+    End Sub
+    Public Sub New(ByVal size As Integer)
+        Array.Resize(_data, size)
+    End Sub
+
+    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+        Throw New NotImplementedException()
+    End Sub
+
+    Public Sub Resize(nSize As Integer, whichBuf As urtBUF) Implements IURTArray.Resize
+        If nSize > 0 Then
+            Array.Resize(_data, nSize)
+        End If
+    End Sub
+
+    Public Sub PutArray(o() As Object, ByRef errStr As String) Implements IURTArray.PutArray
+        For ii = 0 To o.Length - 1
+            _data(ii) = CBool(o(ii))
+        Next
+    End Sub
+
+    Public Sub GetArray(ByRef o As Object, whichBuf As urtBUF) Implements IURTArray.GetArray
+        Dim result() As Boolean
+        Array.Resize(result, _data.Length)
+        For ii = 0 To _data.Length - 1
+            result(ii) = _data(ii)
+        Next
+        o = result
+    End Sub
+End Class
+
 Public Class ConArrayBoolClass
 End Class
 
+Public Structure tSDENUM
+    Public EnumType As String
+    Public EnumVal As Integer
+End Structure
+
 Public Class ConEnum
-    Inherits ConScalarBase
+    Inherits con_data(Of tSDENUM)
     Implements IUrtEnum
 
-    Public Val As Integer
+    Private _data As tSDENUM
+
+    Public Property Val As Integer
+        Get
+            Return _data.EnumVal
+        End Get
+        Set(value As Integer)
+            _data.EnumVal = value
+        End Set
+    End Property
 
     Private _EnumType As String
 
     Public Property EnumType As String Implements IUrtEnum.EnumType
         Get
-            Return _EnumType
+            Return _data.EnumType
         End Get
         Set(value As String)
-            _EnumType = value
+            _data.EnumType = value
         End Set
     End Property
 
     Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
-        Val = CInt(o)
+        _data.EnumVal = CInt(o)
     End Sub
 End Class
 
 Public Class ConEnumClass
 End Class
 
+'ToDo need to change as actual implementation has ConFloat as an interface
+
 Public Class ConFloat
-    Inherits ConScalarBase
+    Inherits con_data(Of Single)
 
     Public Val As Single
     Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
@@ -188,7 +320,7 @@ Public Class ConFloatClass
 End Class
 
 Public Class ConDouble
-    Inherits ConScalarBase
+    Inherits con_data(Of Double)
 
     Public Val As Double
     Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
@@ -201,24 +333,29 @@ Public Class ConDoubleClass
 End Class
 
 Public Interface IURTArray
-    Sub Resize(ByVal nSize As Integer, ByRef buffer As Byte())
-    Sub GetArray(ByVal o As Object, ByRef buffer As Byte())
-    Sub PutArray(ByVal o() As Object, ByRef str As String)
+    Sub Resize(ByVal nSize As Integer, ByVal whichBuf As urtBUF)
+    Sub GetArray(ByRef o As Object, ByVal whichBuf As urtBUF)
+    Sub PutArray(ByVal o() As Object, ByRef errStr As String)
 
 End Interface
 
 Public Interface IUrtTreeMember
-    Default Property Index(ByVal x As Integer) As Integer
-    Sub AddChild(ByVal child As IUrtTreeMember)
+    'Default Property Index(ByVal x As Integer) As Integer
+    Function GetOrCreateChildElement(ByVal name As String,
+                                ByVal description As String,
+                                ByVal myType As System.Guid,
+                                ByVal iSize As Integer) As IUrtTreeMember
 
 End Interface
 
 Public Interface IUrtData
     Sub PutSecurityOptions(ByVal val1 As Integer, ByVal val2 As Integer, ByVal val3 As String)
     Function Size() As Integer
-    Function Size(buf As Byte()) As Integer
+    Function Size(whichBuf As urtBUF) As Integer
     Sub PutOptions(ByVal opt1 As Integer, ByVal opt2 As Integer, ByRef str As String)
     Sub PutVariantValue(ByVal o As Object, ByVal str As String)
+    'todo correct signatures
+    'wstring PutVariantValue(Variant vValue, Long iExtStart, long iIntStart, long nElements, urtBUF eBuffer = dbWORK);
     Property Name As String
     Property Description As String
 End Interface
@@ -227,10 +364,6 @@ Public Interface IUrtMemberSupport
     Sub Raise(ByVal conMsg As ConMessageClass, ByVal cookie As Integer)
 
 End Interface
-
-Public Class URTBuffer
-    Public dbWork As Integer
-End Class
 
 Public Class ConMessageClass
     Public text As String
@@ -248,27 +381,11 @@ Public Class CUrtFBBase
                                 ByVal description As String,
                                 ByVal cmpPtr As IUrtTreeMember,
                                 ByVal myType As System.Guid,
-                                ByVal iSize As Integer) As ConScalarBase
+                                ByVal iSize As Integer) As IUrtTreeMember
 
-        Dim base As ConScalarBase = Nothing
-        Select Case myType
-            Case GetType(ConBoolClass).GUID
-                base = New ConBool
-            Case GetType(ConStringClass).GUID
-                base = New ConString
-            Case GetType(ConIntClass).GUID
-                base = New ConInt
-            Case GetType(ConFloatClass).GUID
-                base = New ConFloat
-            Case GetType(ConEnumClass).GUID
-                base = New ConEnum
-            Case Else
-                Throw New Exception(String.Format("Error when trying to connect <{0}> : Unhandled GUID"))
-        End Select
+        Dim base As IUrtTreeMember = Nothing
 
-        base.Name = name
-        base.Description = description
-        cmpPtr.AddChild(base)
+        Return cmpPtr.GetOrCreateChildElement(name, description, myType, iSize)
 
         Return base
     End Function

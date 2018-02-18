@@ -3,10 +3,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2BCD5433-ADF4-4AE8-A569-ED10BBE2C199}</ProjectGuid>
+    <ProjectGuid>{4C7819A8-4DA2-47EE-8E60-43CDB0000BC9}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>UnitTestConnectDataItems</RootNamespace>
-    <AssemblyName>UnitTestConnectDataItems</AssemblyName>
+    <RootNamespace>UnitTestQALVBSimpleScript</RootNamespace>
+    <AssemblyName>UnitTestQALVBSimpleScript</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
@@ -23,7 +23,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>UnitTestConnectDataItems.xml</DocumentationFile>
+    <DocumentationFile>UnitTestQALVBSimpleScript.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -32,7 +32,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>UnitTestConnectDataItems.xml</DocumentationFile>
+    <DocumentationFile>UnitTestQALVBSimpleScript.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -80,7 +80,7 @@
     <Import Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnitTestConnectionDataItems.vb" />
+    <Compile Include="UnitTestVBSimpleScript.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -125,9 +125,9 @@
       <Project>{864c6ba0-cc3f-4cfa-ad3e-647f47981f78}</Project>
       <Name>UrtTlbLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\URTVBFunctionBlock\URTVBFunctionBlock.vbproj">
-      <Project>{564fbc7f-6539-4ffb-9a29-564748a7dec9}</Project>
-      <Name>URTVBFunctionBlock</Name>
+    <ProjectReference Include="..\URTVBQALSimpleScript\URTVBQALSimpleScript.vbproj">
+      <Project>{650dfdc7-de3e-40bb-b442-15807fc6796c}</Project>
+      <Name>URTVBQALSimpleScript</Name>
     </ProjectReference>
     <ProjectReference Include="..\URT\URT.vbproj">
       <Project>{0a9e990a-b30f-4ed8-8be0-2d55ffcf766e}</Project>

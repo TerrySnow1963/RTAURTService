@@ -1,18 +1,13 @@
-' Title:  			QAL Fill Tank Married Script
-' Filename:			QALFillTankMarried1.vb
-' Author:			Scott Grimsley (Honeywell) 
-' Description:		Fill Tank Married Script.
+﻿' Title:  			QAL Simple Script
+' Filename:			QALSimpleScript.vb
+' Author:			Terry Snow (RTA) 
+' Description:		Used to test the URT Test BEd
 ' Inputs:
 ' Outputs:      
 ' REVISION HISTORY 
 ' ================
 ' REV:   DATE:       BY:                			DESCRIPTION: 
-' 1      2015-08-17  Scott Grimsley                 As Built.
-' 2      2015-08-24  Scott Grimsley                 Updated spelling.
-' 3      2015-09-18  Terry Snow                     Changed to using SDE for Tank Mode and Status
-' 4      2015-10-13  Terry Snow                     Added check for HID valve mode for married / divorced
-' 5      2017-06-15  Rakesh Mehta                   Added Note element
-' 5.1    2018-01-09  Rakesh Mehta                   Changed to Diagnostic timer
+' 1      2018-02-17  Terry Snow                     As Built.
 '
 
 Option Explicit On
@@ -25,72 +20,29 @@ Imports Microsoft.VisualBasic
 Imports System.Diagnostics
 
 Namespace URT
-    Public Enum urtNOYES
-        NO = 0
-        YES = 1
-
-    End Enum
-
-    Public Enum qalTankMarriedMode
-        DIVORCED = 0
-        MARRIED = 1
-        AUTO = 3
-    End Enum
-
-    Public Enum qalTankMarriedStatus
-        DIVORCED = 0
-        MARRIED = 1
-    End Enum
-
 
     Public Class VBScript
         Inherits CVBScriptBase
-        Private FBErrors As ConString ' Error on Last Run
-        Private FBExecTime As ConInt ' Error on Last Run
-        Private ClearError As ConBool
 
-        Private inAuto, outIsMarried, inTankMarriedMode, outTankMarriedStatus As ConEnum
-        Private inFillEast, inFillWest, DivorcedTrip, MarriedTrip As ConFloat
-        Private inDeltaMode As IUrtArray
-        Private outStatus As ConString
+        Private inFloat1, inFloat2, outFloat1 As ConFloat
+        Private inSize As ConInt
+        Private inArrayBool As IURTArray
+
         ' called when script is recompiled.  bInit is true only the first time the script successfully compiles.
         ' Note that this is not exactly like InitNew() for compiled FBs since bInit is true once each time the platform loads
         ' whereas in compiled FBs, InitNew is called exaclty once when the FB is created and never when the platform loads.
         Sub ConnectDataItems(ByVal bInit As Boolean)
+
+            Dim nSize As Integer = 4
             Try
                 '                bInit = QALUtil.SetupVersion3("5.1/2018-01-09", CmpPtr)
-                ClearError = QALUtil.URTScale3(Of ConBool)("ClearError", "Clear Error Messages.", GetType(ConBoolClass).GUID, bInit, False, CmpPtr)
-                FBErrors = QALUtil.URTScale3(Of ConString)("FBErrors", "Error on Last Run.", GetType(ConStringClass).GUID, bInit, "", CmpPtr)
-                FBExecTime = QALUtil.URTScale3(Of ConInt)("FBExecTime", "Run Time of Last FB Execution in Milliseconds.", GetType(ConIntClass).GUID, bInit, 0, CmpPtr)
 
-                QALUtil.URTScale3(Of ConString)("Note", "ToDo - Write Implementation Note", GetType(ConStringClass).GUID, bInit, "", CmpPtr)
-
-                inAuto = QALUtil.URTScale3(Of ConEnum)("inAuto", "inAuto - Desc", GetType(ConEnumClass).GUID, bInit, False, CmpPtr, "urtNOYES")
-
-                inTankMarriedMode = QALUtil.URTScale3(Of ConEnum)("inTankMarriedMode", "AUTO: Set by delta level, MARRIED: forced to be married, DIVORCED: Forced to be divorced",
-                                            GetType(ConEnumClass).GUID, bInit, qalTankMarriedMode.AUTO, CmpPtr, "qalTankMarriedMode")
-
-                outTankMarriedStatus = QALUtil.URTScale3(Of ConEnum)("outTankMarriedStatus", "Married or Divorced",
-                                            GetType(ConEnumClass).GUID, bInit, qalTankMarriedStatus.MARRIED, CmpPtr, "qalTankMarriedStatus")
-
-                inFillEast = QALUtil.URTScale3(Of ConFloat)("inFillEast", "inFillEast - Desc", GetType(ConFloatClass).GUID, bInit, 0.0, CmpPtr, , 2228224)
-                inFillWest = QALUtil.URTScale3(Of ConFloat)("inFillWest", "inFillWest - Desc", GetType(ConFloatClass).GUID, bInit, 0.0, CmpPtr, , 2228224)
-                DivorcedTrip = QALUtil.URTScale3(Of ConFloat)("DivorcedTrip", "DivorcedTrip - Desc", GetType(ConFloatClass).GUID, bInit, 5.0, CmpPtr)
-                MarriedTrip = QALUtil.URTScale3(Of ConFloat)("MarriedTrip", "MarriedTrip - Desc", GetType(ConFloatClass).GUID, bInit, 3.0, CmpPtr)
-                inDeltaMode = QALUtil.URTArray3("inDeltaMode", "Array of the HID Feed valve Cascade Modes", GetType(ConArrayBoolClass).GUID, 4, bInit, True, CmpPtr, , 2228224)
-
-                outIsMarried = QALUtil.URTScale3(Of ConEnum)("outIsMarried", "outIsMarried - Desc", GetType(ConEnumClass).GUID, bInit, False, CmpPtr, "urtNOYES")
-                outStatus = QALUtil.URTScale3(Of ConString)("outStatus", "outStatus - Desc", GetType(ConStringClass).GUID, bInit, "Divorced", CmpPtr)
-
-                'If bInit Then
-                '    CType(FBErrors, IUrtData).PutSecurityOptions(32, 1, "") ' ReadOnly
-                '    CType(FBExecTime, IUrtData).PutSecurityOptions(32, 1, "") ' ReadOnly
-                '    CType(inTankMarriedMode, IUrtData).PutSecurityOptions(1, 1, "") ' ReadOnly
-                '    CType(outTankMarriedStatus, IUrtData).PutSecurityOptions(32, 1, "") ' ReadOnly
-                '    CType(DivorcedTrip, IUrtData).PutSecurityOptions(4, 1, "") ' ReadOnly
-                '    CType(MarriedTrip, IUrtData).PutSecurityOptions(4, 1, "") ' ReadOnly
-
-                'End If
+                'Note have deliberataly made inFloat2 the same element as inFloat1
+                inFloat1 = QALUtil.URTScale3(Of ConFloat)("inFloat1", "inFloat1 - Desc", GetType(ConFloatClass).GUID, bInit, 0.0, CmpPtr, , 2228224)
+                inFloat2 = QALUtil.URTScale3(Of ConFloat)("inFloat1", "inFloat2 - Desc", GetType(ConFloatClass).GUID, bInit, 0.0, CmpPtr, , 2228224)
+                inArrayBool = QALUtil.URTArray3("inArrayBool", "inArrayBool - Descs", GetType(ConArrayBoolClass).GUID, nSize, bInit, True, CmpPtr, , 2228224)
+                inSize = QALUtil.URTScale3(Of ConInt)("inSize", "inSize - Desc", GetType(ConIntClass).GUID, bInit, nSize, CmpPtr, , 2228224)
+                outFloat1 = QALUtil.URTScale3(Of ConFloat)("outFloat1", "outFloat1 - Desc", GetType(ConFloatClass).GUID, bInit, 5.0, CmpPtr)
 
             Catch ex As Exception
                 Call GenerateError("ConnectDataItems: " & ex.Message)
@@ -102,21 +54,15 @@ Namespace URT
         ' URT scheduler calls PreExecute() then Execute() then PostExecute() each time the schedule executes
         Public Overrides Sub Execute(ByVal iCause As Integer, ByVal pITMScheduler As IUrtTreeMember)
 
-            Dim fbTimer As New StopWatch
-            Dim dDelta As Single
-            Dim bFlowControlInCasc As Boolean
+            Dim I_inArrayBool() As Boolean = Nothing
 
-            Dim I_inDeltaMode() As Boolean = Nothing
-
-            FBErrors.Val = ""
-            fbTimer.Start()
-
-            ' Section A:
-            ' Copy arrays to local variables.
             Try
-                If 4 <> CType(inDeltaMode, IUrtData).Size(urtBUF.dbWORK) Then inDeltaMode.Resize(4, urtBUF.dbWORK)
 
-                I_inDeltaMode = QALUtil.GetArray3(Of Boolean)(inDeltaMode)
+                If inSize.Val < 1 Then inSize.Val = 1
+
+                If inSize.Val <> CType(inArrayBool, IUrtData).Size(urtBUF.dbWork) Then inArrayBool.Resize(inSize.Val, urtBUF.dbWork)
+
+                I_inArrayBool = QALUtil.GetArray3(Of Boolean)(inArrayBool)
 
             Catch ex As Exception
                 GenerateError("A: " & ex.Message)
@@ -127,38 +73,15 @@ Namespace URT
             ' Section B:
             ' Loop through each each value:
             Try
-                bFlowControlInCasc = (I_inDeltaMode(0) And I_inDeltaMode(1)) Or (I_inDeltaMode(2) And I_inDeltaMode(3))
+                'as inFloat1 is the same as inFloat2, then this is really the same as 2*infloat1
 
-                If inTankMarriedMode.Val = qalTankMarriedMode.AUTO Then
-                    dDelta = Math.Abs(inFillEast.Val - inFillWest.Val)
-                    If outIsMarried.Val = urtNOYES.YES Then
-                        If dDelta > DivorcedTrip.Val Or bFlowControlInCasc = False Then
-                            outIsMarried.Val = urtNOYES.No
-                            outStatus.Val = "Divorced"
-                            outTankMarriedStatus.Val = qalTankMarriedStatus.DIVORCED
-                        End If
-                    Else
-                        If dDelta < MarriedTrip.Val And bFlowControlInCasc Then
-                            outIsMarried.Val = urtNOYES.YES
-                            outStatus.Val = "Married"
-                            outTankMarriedStatus.Val = qalTankMarriedStatus.MARRIED
-
-                        End If
-
-                    End If
-                    'regardless of delta level, 
+                If I_inArrayBool(0) And I_inArrayBool(1) Then
+                    outFloat1.Val = inFloat1.Val * 3.0!
                 Else
-                    If inTankMarriedMode.Val = qalTankMarriedMode.MARRIED Then
-                        outStatus.Val = "Married"
-                        outIsMarried.Val = urtNOYES.YES
-                        outTankMarriedStatus.Val = qalTankMarriedSTATUS.MARRIED
-                    Else
-                        outStatus.Val = "Divorced"
-                        outIsMarried.Val = urtNOYES.NO
-                        outTankMarriedStatus.Val = qalTankMarriedSTATUS.DIVORCED
-                    End If
-
+                    outFloat1.Val = inFloat1.Val + inFloat2.Val
                 End If
+
+
 
             Catch ex As Exception
                 GenerateError("B: " & ex.Message)
@@ -168,8 +91,7 @@ Namespace URT
             ' Section Z:
             ' Copy local arrays back to the URT data items.
             Try
-                fbTimer.Stop()
-                FBExecTime.Val = CInt(fbTimer.elapsedMilliseconds)
+
 
             Catch ex As Exception
                 GenerateError("Z: " & ex.Message)
@@ -187,12 +109,12 @@ Namespace URT
         ' 1      2015-04-16  Scott Grimsley                 As Built.
         Private Sub GenerateError(ByVal sError As String)
             Try
-                FBErrors.Val += sError
-                If ClearError.Val = False Then
-                    ClearError.Val = True
-                    RaiseMessage(FBErrors.Val)
+                '                FBErrors.Val += sError
+                '                If ClearError.Val = False Then
+                '         ClearError.Val = True
+                RaiseMessage(sError)
 
-                End If
+                'End If
 
             Catch ex As Exception
 
@@ -225,10 +147,10 @@ Namespace URT
         ' ================
         ' REV:   DATE:       BY:                			DESCRIPTION: 
         ' 1      2015-04-16  Scott Grimsley                 As Built.
-        Private Sub RaiseMessage( _
-                ByVal Message As String, _
-                Optional ByVal Group As urtMSGGROUP = urtMSGGROUP.msgERROR, _
-                Optional ByVal Priority As urtMSGPRIORITY = urtMSGPRIORITY.msgHI, _
+        Private Sub RaiseMessage(
+                ByVal Message As String,
+                Optional ByVal Group As urtMSGGROUP = urtMSGGROUP.msgERROR,
+                Optional ByVal Priority As urtMSGPRIORITY = urtMSGPRIORITY.msgHI,
                 Optional ByVal AckRequired As Boolean = False)
             Dim conMessage As New ConMessageClass
             Dim cookie As Integer
@@ -263,8 +185,8 @@ Namespace URT
         ' ================
         ' REV:   DATE:       BY:                			DESCRIPTION: 
         ' 1      2015-04-16  Scott Grimsley                 As Built.
-        Public Function SetupVersion3( _
-                            ByVal VersionString As String, _
+        Public Function SetupVersion3(
+                            ByVal VersionString As String,
                             ByVal myCmpPtr As IUrtTreeMember) As Boolean
 
             Dim bReturn As Boolean = False
@@ -333,15 +255,15 @@ Namespace URT
         ' REV:   DATE:       BY:                			DESCRIPTION: 
         ' 1      2015-04-16  Scott Grimsley                 As Built.
         ' 2      2015-05-29  Scott Grimsley                 Moved settings out of bInit.
-        Public Function URTArray3( _
-                   ByVal sName As String, _
-                   ByVal sDesc As String, _
-                   ByVal myType As System.Guid, _
-                   ByVal iSize As Integer, _
-                   ByVal bInit As Boolean, _
-                   ByVal InitVal As Object, _
-                   ByVal myCmpPtr As IUrtTreeMember, _
-                    Optional ByVal EnumType As String = "", _
+        Public Function URTArray3(
+                   ByVal sName As String,
+                   ByVal sDesc As String,
+                   ByVal myType As System.Guid,
+                   ByVal iSize As Integer,
+                   ByVal bInit As Boolean,
+                   ByVal InitVal As Object,
+                   ByVal myCmpPtr As IUrtTreeMember,
+                    Optional ByVal EnumType As String = "",
                    Optional ByVal myOption As Integer = conOPTIONS.doDEFAULTS) _
                        As IUrtArray
             Dim myArray As IUrtArray = Nothing
@@ -384,16 +306,16 @@ Namespace URT
         ' ================
         ' REV:   DATE:       BY:                			DESCRIPTION: 
         ' 1      2015-04-16  Scott Grimsley                 As Built.
-        Public Function URTArray3( _
-                                    ByVal sName As String, _
-                                    ByVal sDesc As String, _
-                                    ByVal myType As System.Guid, _
-                                    ByVal iIndex As Integer, _
-                                    ByVal myTree As IUrtTreeMember, _
-                                    ByVal iSize As Integer, _
-                                    ByVal bInit As Boolean, _
-                                    ByVal InitVal As Object, _
-                                    Optional ByVal EnumType As String = "", _
+        Public Function URTArray3(
+                                    ByVal sName As String,
+                                    ByVal sDesc As String,
+                                    ByVal myType As System.Guid,
+                                    ByVal iIndex As Integer,
+                                    ByVal myTree As IUrtTreeMember,
+                                    ByVal iSize As Integer,
+                                    ByVal bInit As Boolean,
+                                    ByVal InitVal As Object,
+                                    Optional ByVal EnumType As String = "",
                                     Optional ByVal myOption As Integer = conOPTIONS.doDEFAULTS) _
                                        As iUrtArray
             Dim myArray As IUrtArray = Nothing
@@ -438,14 +360,14 @@ Namespace URT
         ' REV:   DATE:       BY:                			DESCRIPTION: 
         ' 1      2015-04-16  Scott Grimsley                 As Built.
         ' 2      2015-05-29  Scott Grimsley                 Moved settings out of bInit.
-        Public Function URTScale3(Of T)( _
-                                    ByVal sName As String, _
-                                    ByVal sDesc As String, _
-                                    ByVal myType As System.Guid, _
-                                    ByVal bInit As Boolean, _
-                                    ByVal InitVal As Object, _
-                                    ByVal myCmpPtr As IUrtTreeMember, _
-                                    Optional ByVal EnumType As String = "", _
+        Public Function URTScale3(Of T)(
+                                    ByVal sName As String,
+                                    ByVal sDesc As String,
+                                    ByVal myType As System.Guid,
+                                    ByVal bInit As Boolean,
+                                    ByVal InitVal As Object,
+                                    ByVal myCmpPtr As IUrtTreeMember,
+                                    Optional ByVal EnumType As String = "",
                                     Optional ByVal myOption As Integer = conOPTIONS.doDEFAULTS) _
                                         As T
             Dim myScale As IUrtData = Nothing
@@ -482,15 +404,15 @@ Namespace URT
         ' ================
         ' REV:   DATE:       BY:                			DESCRIPTION: 
         ' 1      2015-04-16  Scott Grimsley                 As Built.
-        Public Function URTScale3(Of T)( _
-                                    ByVal sName As String, _
-                                    ByVal sDesc As String, _
-                                    ByVal myType As System.Guid, _
-                                    ByVal iIndex As Integer, _
-                                    ByVal myTree As IUrtTreeMember, _
-                                    ByVal bInit As Boolean, _
-                                    ByVal InitVal As Object, _
-                                    Optional ByVal EnumType As String = "", _
+        Public Function URTScale3(Of T)(
+                                    ByVal sName As String,
+                                    ByVal sDesc As String,
+                                    ByVal myType As System.Guid,
+                                    ByVal iIndex As Integer,
+                                    ByVal myTree As IUrtTreeMember,
+                                    ByVal bInit As Boolean,
+                                    ByVal InitVal As Object,
+                                    Optional ByVal EnumType As String = "",
                                     Optional ByVal myOption As Integer = conOPTIONS.doDEFAULTS) _
                                        As T
             Dim o As Object = Nothing
@@ -558,8 +480,8 @@ Namespace URT
         ' ================
         ' REV:   DATE:       BY:                			DESCRIPTION: 
         ' 1      2015-04-16  Scott Grimsley                 As Built.
-        Public Sub URTSettings3(ByVal myData As IUrtData, _
-                              ByVal myOption As Integer, _
+        Public Sub URTSettings3(ByVal myData As IUrtData,
+                              ByVal myOption As Integer,
                               Optional ByVal bSet As Boolean = True)
             Try
                 If bSet Then
@@ -581,5 +503,6 @@ Namespace URT
 
 
 End Namespace
+
 
 
