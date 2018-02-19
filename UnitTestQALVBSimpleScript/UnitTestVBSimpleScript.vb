@@ -39,10 +39,18 @@ Imports UrtTlbLib
         Dim inFloat1 As ConFloat = urtVBFB.GetElement("inFloat1")
         Dim outFloat1 As ConFloat = urtVBFB.GetElement("outFloat1")
 
+        Dim inArrayBool As ConArrayBool = urtVBFB.GetElement("inArrayBool")
+
         inFloat1.Val = 5.0
         urtVBFB.Execute(0, Nothing)
 
+        Trace.WriteLine("Testing InArray(0) AND InArray(1) (both True) gives 5.0 + 5.0")
         Assert.AreEqual(10.0!, outFloat1.Val)
+
+        Trace.WriteLine("Testing InArray(0) AND InArray(1) (one False True) gives 3*5.0 = 15.0")
+        inArrayBool.Item(1) = False
+        urtVBFB.Execute(0, Nothing)
+        Assert.AreEqual(15.0!, outFloat1.Val)
 
     End Sub
 
@@ -90,13 +98,14 @@ Imports UrtTlbLib
 
         Trace.WriteLine("Testing inArray(0) is True, and inArray(1) is True")
         urtVBFB.Execute(0, Nothing)
+        Dim expectedResult As Single
 
-        Dim expectedResult As Single = 3.0! * 5.0!
-
+        expectedResult = 2.0! * 5.0!
         Assert.AreEqual(expectedResult, outFloat1.Val)
 
         inArrayBool(0) = False
-        expectedResult = 2.0! * 5.0!
+
+        expectedResult = 3.0! * 5.0!
 
         Trace.WriteLine("Testing inArray(0) is False, and inArray(1) is True")
         urtVBFB.Execute(0, Nothing)

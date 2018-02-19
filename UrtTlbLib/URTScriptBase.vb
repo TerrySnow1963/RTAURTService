@@ -50,7 +50,6 @@ End Class
 
 Public MustInherit Class con_data(Of T)
     Implements IUrtData
-    Implements IUrtTreeMember
 
     Private _name As String
     Private _description As String
@@ -82,13 +81,6 @@ Public MustInherit Class con_data(Of T)
         End Set
     End Property
 
-    Public Function GetOrCreateChildElement(ByVal name As String,
-                                ByVal description As String,
-                                ByVal myType As System.Guid,
-                                ByVal iSize As Integer) As IUrtTreeMember Implements IUrtTreeMember.GetOrCreateChildElement
-        Throw New NotImplementedException()
-    End Function
-
     Public Sub PutOptions(WhichOptions As Integer, SetOptions As Integer, ByRef str As String) Implements IUrtData.PutOptions
         'ToDo align with Honeywell, only the Which Option
         _options = SetOptions
@@ -111,81 +103,6 @@ Public MustInherit Class con_data(Of T)
     End Function
 
     Protected MustOverride Sub PutVariantValueInternal(o As Object, str As String)
-End Class
-
-Public MustInherit Class con_array(Of T)
-    Implements IUrtData
-    Implements IUrtTreeMember
-
-    Protected _data() As T
-
-    Private _name As String
-    Private _description As String
-    Private _options As Integer
-    Public Property Description As String Implements IUrtData.Description
-        Get
-            Return _description
-        End Get
-        Set(value As String)
-            _description = value
-        End Set
-    End Property
-
-    'Default Public Property Index(ii As Integer) As Integer Implements IUrtTreeMember.Index
-    '    Get
-    '        Return _data(ii)
-    '    End Get
-    '    Set(value As Integer)
-    '        Throw New NotImplementedException()
-    '    End Set
-    'End Property
-
-    Default Public Property Item(ii As Integer) As T
-        Get
-            Return _data(ii)
-        End Get
-        Set(value As T)
-            _data(ii) = value
-        End Set
-    End Property
-    Public Property Name As String Implements IUrtData.Name
-        Get
-            Return _name
-        End Get
-        Set(value As String)
-            _name = value
-        End Set
-    End Property
-
-    Public Function GetOrCreateChildElement(ByVal name As String,
-                                ByVal description As String,
-                                ByVal myType As System.Guid,
-                                ByVal iSize As Integer) As IUrtTreeMember Implements IUrtTreeMember.GetOrCreateChildElement
-        Throw New NotImplementedException()
-    End Function
-
-    Public Sub PutOptions(WhichOptions As Integer, SetOptions As Integer, ByRef str As String) Implements IUrtData.PutOptions
-        'ToDo align with Honeywell, only the Which Option
-        _options = SetOptions
-    End Sub
-
-    Public Sub PutSecurityOptions(val1 As Integer, val2 As Integer, val3 As String) Implements IUrtData.PutSecurityOptions
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub PutVariantValue(o As Object, str As String) Implements IUrtData.PutVariantValue
-        PutVariantValueInternal(o, str)
-    End Sub
-
-    Public Function Size() As Integer Implements IUrtData.Size
-        Return _data.Length
-    End Function
-
-    Protected MustOverride Sub PutVariantValueInternal(o As Object, str As String)
-
-    Public Function Size(whichBuf As urtBUF) As Integer Implements IUrtData.Size
-        Return _data.Length
-    End Function
 End Class
 
 Public Class ConString
@@ -225,44 +142,152 @@ End Class
 Public Class ConBoolClass
 End Class
 
-Public Class ConArrayBool
-    Inherits con_array(Of Boolean)
+Public Class con_base
+    Public Function Setup(ByVal name As String, ByVal ContextTM As IUrtTreeMember,
+                          Optional iElement As Long = -1, Optional ByVal Desc As String = "",
+                          Optional whichOptions As Long = 0, Optional setOptions As Long = 0,
+                          Optional ByVal connection As String = "") As Boolean
+        'Todo implement function
+        Return False
+
+    End Function
+End Class
+
+Public Class con_array(Of T)
+    Inherits con_base
+    Protected _data() As T
+    Private Sub New()
+
+    End Sub
+    Public Sub New(ByVal nSize As Integer)
+        Resize(nSize, Nothing)
+    End Sub
+
+    Default Public Property Item(ii As Integer) As T
+        Get
+            Return _data(ii)
+        End Get
+        Set(value As T)
+            _data(ii) = value
+        End Set
+    End Property
+
+    Public ReadOnly Property Size As Integer
+        Get
+            Return _data.Length
+        End Get
+    End Property
+
+    Public Sub Resize(ByVal nSize As Integer, ByVal x() As T)
+        If nSize > 0 Then
+            Array.Resize(_data, nSize)
+        End If
+        If Not x Is Nothing Then
+            For ii = 0 To nSize - 1
+                _data(ii) = x(ii)
+            Next
+        End If
+    End Sub
+
+
+End Class
+
+Public Interface ConArrayBool
+    Default Property Item(ByVal index As Integer) As Boolean
+End Interface
+
+Public Class ConArrayBoolClass
+    Implements IUrtData
     Implements IURTArray
+    Implements ConArrayBool
+
+    Private _conItem As con_array(Of Boolean)
 
     Private Sub New()
 
     End Sub
-    Public Sub New(ByVal size As Integer)
-        Array.Resize(_data, size)
+    Public Sub New(ByVal nSize As Integer)
+        _conItem = New con_array(Of Boolean)(nSize)
     End Sub
 
-    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+#Region "ConArrayBool"
+    Default Public Property Item(index As Integer) As Boolean Implements ConArrayBool.Item
+        Get
+            Return _conItem.Item(index)
+        End Get
+        Set(value As Boolean)
+            _conItem.Item(index) = value
+        End Set
+    End Property
+#End Region
+
+#Region "IURTData"
+    Private _name As String
+    Private _description As String
+    Private _options As Integer
+    Public Property Description As String Implements IUrtData.Description
+        Get
+            Return _description
+        End Get
+        Set(value As String)
+            _description = value
+        End Set
+    End Property
+
+    Public Property Name As String Implements IUrtData.Name
+        Get
+            Return _name
+        End Get
+        Set(value As String)
+            _name = value
+        End Set
+    End Property
+
+    Public Sub PutOptions(WhichOptions As Integer, SetOptions As Integer, ByRef str As String) Implements IUrtData.PutOptions
+        'ToDo align with Honeywell, only the Which Option
+        _options = SetOptions
+    End Sub
+
+    Public Sub PutSecurityOptions(val1 As Integer, val2 As Integer, val3 As String) Implements IUrtData.PutSecurityOptions
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub Resize(nSize As Integer, whichBuf As urtBUF) Implements IURTArray.Resize
-        If nSize > 0 Then
-            Array.Resize(_data, nSize)
-        End If
+    Public Sub PutVariantValue(o As Object, str As String) Implements IUrtData.PutVariantValue
+        Throw New NotImplementedException()
     End Sub
 
-    Public Sub PutArray(o() As Object, ByRef errStr As String) Implements IURTArray.PutArray
+    Public Function Size() As Integer Implements IUrtData.Size
+        Return _conItem.Size
+    End Function
+
+    Public Function Size(whichBuf As urtBUF) As Integer Implements IUrtData.Size
+        Return _conItem.Size
+    End Function
+#End Region
+
+#Region "IURTArray"
+
+    Public Sub Resize(nSize As Integer, Optional ByVal eBuf As urtBUF = 1) Implements IURTArray.Resize
+        _conItem.Resize(nSize, Nothing)
+    End Sub
+
+    Public Sub PutArray(o() As Object, ByRef errStr As String, Optional ByVal eBuf As urtBUF = 1) Implements IURTArray.PutArray
         For ii = 0 To o.Length - 1
-            _data(ii) = CBool(o(ii))
+            _conItem(ii) = CBool(o(ii))
         Next
     End Sub
 
-    Public Sub GetArray(ByRef o As Object, whichBuf As urtBUF) Implements IURTArray.GetArray
+    Public Sub GetArray(ByRef o As Object, Optional ByVal eBuf As urtBUF = 1) Implements IURTArray.GetArray
         Dim result() As Boolean
-        Array.Resize(result, _data.Length)
-        For ii = 0 To _data.Length - 1
-            result(ii) = _data(ii)
+        Array.Resize(result, _conItem.Size)
+        For ii = 0 To _conItem.Size - 1
+            result(ii) = _conItem(ii)
         Next
         o = result
     End Sub
-End Class
 
-Public Class ConArrayBoolClass
+
+#End Region
 End Class
 
 Public Structure tSDENUM
@@ -333,19 +358,19 @@ Public Class ConDoubleClass
 End Class
 
 Public Interface IURTArray
-    Sub Resize(ByVal nSize As Integer, ByVal whichBuf As urtBUF)
-    Sub GetArray(ByRef o As Object, ByVal whichBuf As urtBUF)
-    Sub PutArray(ByVal o() As Object, ByRef errStr As String)
+    Sub Resize(ByVal nSize As Integer, Optional ByVal eBuf As urtBUF = 1)
+    Sub GetArray(ByRef o As Object, Optional ByVal eBuf As urtBUF = 1)
+    Sub PutArray(ByVal o() As Object, ByRef errStr As String, Optional ByVal eBuf As urtBUF = 1)
 
 End Interface
 
 Public Interface IUrtTreeMember
     'Default Property Index(ByVal x As Integer) As Integer
-    Function GetOrCreateChildElement(ByVal name As String,
-                                ByVal description As String,
-                                ByVal myType As System.Guid,
-                                ByVal iSize As Integer) As IUrtTreeMember
-
+    'Function GetOrCreateChildElement(ByVal name As String,
+    '                            ByVal description As String,
+    '                            ByVal myType As System.Guid,
+    '                            ByVal iSize As Integer) As IUrtTreeMember
+    Sub Find(ByVal name As String, ByRef iid As Guid, ByRef ppIReq As Object)
 End Interface
 
 Public Interface IUrtData
@@ -362,7 +387,6 @@ End Interface
 
 Public Interface IUrtMemberSupport
     Sub Raise(ByVal conMsg As ConMessageClass, ByVal cookie As Integer)
-
 End Interface
 
 Public Class ConMessageClass

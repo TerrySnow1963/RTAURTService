@@ -76,9 +76,9 @@ Namespace URT
                 'as inFloat1 is the same as inFloat2, then this is really the same as 2*infloat1
 
                 If I_inArrayBool(0) And I_inArrayBool(1) Then
-                    outFloat1.Val = inFloat1.Val * 3.0!
-                Else
                     outFloat1.Val = inFloat1.Val + inFloat2.Val
+                Else
+                    outFloat1.Val = inFloat1.Val * 3.0!
                 End If
 
 

@@ -1,10 +1,12 @@
-﻿Imports UrtTlbLib
+﻿Option Strict On
+
+Imports UrtTlbLib
 
 Public MustInherit Class URTVBFunctionBlock
     Implements IUrtTreeMember
     Implements IUrtMemberSupport
 
-    Private _childElements As List(Of IUrtTreeMember)
+    Private _childElements As List(Of IUrtData)
     Private _theScript As CVBScriptBase
 
     Private Sub New()
@@ -22,7 +24,7 @@ Public MustInherit Class URTVBFunctionBlock
         Dim base As CVBScriptBase = _theScript
 
         base.CmpPtr = Me
-        _childElements = New List(Of IUrtTreeMember)
+        _childElements = New List(Of IUrtData)
     End Sub
 
     'Default Public Property Index(x As Integer) As Integer Implements IUrtTreeMember.Index
@@ -34,12 +36,12 @@ Public MustInherit Class URTVBFunctionBlock
     '    End Set
     'End Property
 
-    Public Function GetElement(v As String) As IUrtData
-        For Each e In _childElements
-            If CType(e, IUrtData).Name = v Then Return e
-        Next
-        Return Nothing
-    End Function
+    'Public Function GetElement(v As String) As IUrtData
+    '    For Each e In _childElements
+    '        If CType(e, IUrtData).Name = v Then Return e
+    '    Next
+    '    Return Nothing
+    'End Function
 
     Public MustOverride Sub Connect(ByVal WitInit As Boolean)
 
@@ -48,7 +50,7 @@ Public MustInherit Class URTVBFunctionBlock
     Public Function GetOrCreateChildElement(ByVal name As String,
                                 ByVal description As String,
                                 ByVal myType As System.Guid,
-                                ByVal iSize As Integer) As IUrtTreeMember Implements IUrtTreeMember.GetOrCreateChildElement
+                                ByVal iSize As Integer) As IUrtData
         For Each e In _childElements
             If CType(e, IUrtData).Name = name Then
                 Return e
@@ -57,7 +59,7 @@ Public MustInherit Class URTVBFunctionBlock
         Return AddChild(name, description, myType, iSize)
     End Function
 
-    Private Function AddChild(name As String, description As String, myType As Guid, iSize As Integer) As IUrtTreeMember
+    Private Function AddChild(name As String, description As String, myType As Guid, iSize As Integer) As IUrtData
 
         Dim base As IUrtData
 
@@ -73,7 +75,7 @@ Public MustInherit Class URTVBFunctionBlock
             Case GetType(ConEnumClass).GUID
                 base = New ConEnum
             Case GetType(ConArrayBoolClass).GUID
-                base = New ConArrayBool(iSize)
+                base = New ConArrayBoolClass(iSize)
             Case Else
                 Throw New Exception(String.Format("Error when trying to connect <{0}> : Unhandled GUID"))
         End Select
@@ -87,5 +89,14 @@ Public MustInherit Class URTVBFunctionBlock
 
     Public Sub Raise(conMsg As ConMessageClass, cookie As Integer) Implements IUrtMemberSupport.Raise
         Trace.WriteLine(conMsg.text)
+    End Sub
+
+    Public Sub Find(name As String, ByRef iid As Guid, ByRef ppIReq As Object) Implements IUrtTreeMember.Find
+        For Each e In _childElements
+            If CType(e, IUrtData).Name = name Then
+                ppIReq = e
+            End If
+        Next
+        ppIReq = Nothing
     End Sub
 End Class
