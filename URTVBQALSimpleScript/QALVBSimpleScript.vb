@@ -269,7 +269,7 @@ Namespace URT
             Dim myArray As IUrtArray = Nothing
             Dim ii As Integer
             Try
-                myArray = CType(CUrtFBBase.Setup(sName, sDesc, myCmpPtr, myType, iSize), iUrtArray)
+                myArray = CType(CUrtFBBase.Setup(sName, sDesc, myCmpPtr, myType, iSize), IURTArray)
                 If EnumType <> "" Then CType(myArray, IUrtEnum).EnumType = EnumType
                 If myOption <> conOPTIONS.doDEFAULTS Then URTSettings3(CType(myArray, IUrtData), myOption)
                 If bInit Then ' Called when function block first added to URT platform.

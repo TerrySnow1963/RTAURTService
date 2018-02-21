@@ -106,6 +106,7 @@ Imports URTVBFunctionBlock
         Dim element As IUrtData
 
         For Each name In elementNames
+            Trace.WriteLine("Checking " & name)
             element = urtVBFB.GetElement(name)
             Assert.IsNotNull(element)
             Assert.AreEqual(name, element.Name)
