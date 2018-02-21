@@ -92,8 +92,8 @@ Imports UrtTlbLib
         Dim inArrayBool As ConArrayBool = CType(urtVBFB.GetElement("inArrayBool"), ConArrayBool)
 
         inFloat1.Val = 5.0!
-        inArrayBool(0) = True
-        inArrayBool(1) = True
+        inArrayBool.Item(0) = True
+        inArrayBool.Item(1) = True
 
 
         Trace.WriteLine("Testing inArray(0) is True, and inArray(1) is True")
@@ -103,7 +103,7 @@ Imports UrtTlbLib
         expectedResult = 2.0! * 5.0!
         Assert.AreEqual(expectedResult, outFloat1.Val)
 
-        inArrayBool(0) = False
+        inArrayBool.Item(0) = False
 
         expectedResult = 3.0! * 5.0!
 
