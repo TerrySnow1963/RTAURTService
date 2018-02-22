@@ -1,12 +1,14 @@
 ﻿Imports UrtTlbLib
+Imports RTAInterfaces
 
 Public MustInherit Class con_data
     Implements IUrtData
+    Implements IRTAUrtData
 
     Private _name As String
     Private _description As String
     Private _options As Integer
-    Public Property Description As String Implements IUrtData.Description
+    Public Property Description As String Implements IRTAUrtData.Description
         Get
             Return _description
         End Get
@@ -24,7 +26,7 @@ Public MustInherit Class con_data
     '    End Set
     'End Property
 
-    Public Property Name As String Implements IUrtData.Name
+    Public Property Name As String Implements IRTAUrtData.Name
         Get
             Return _name
         End Get
@@ -33,7 +35,7 @@ Public MustInherit Class con_data
         End Set
     End Property
 
-    Public MustOverride Property Item(index As Integer) As Object Implements IUrtData.Item
+    Public MustOverride Property Item(index As Integer) As Object Implements IRTAUrtData.Item
 
     Public Sub PutOptions(WhichOptions As Integer, SetOptions As Integer, ByRef str As String) Implements IUrtData.PutOptions
         'ToDo align with Honeywell, only the Which Option

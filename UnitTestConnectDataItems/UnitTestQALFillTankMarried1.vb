@@ -2,6 +2,7 @@
 Imports Microsoft.VisualStudio.TestTools.UnitTesting
 Imports UrtTlbLib
 Imports URTVBFunctionBlock
+Imports RTAInterfaces
 
 <TestClass()> Public Class UnitTestQALFillTankMarried1
 
@@ -14,8 +15,8 @@ Imports URTVBFunctionBlock
         Dim ClearError As ConBool = urtVBFB.GetElement("ClearError")
 
         Assert.IsNotNull(ClearError)
-        Assert.AreEqual("ClearError", CType(ClearError, IUrtData).Name)
-        Assert.AreEqual("Clear Error Messages.", CType(ClearError, IUrtData).Description)
+        Assert.AreEqual("ClearError", CType(ClearError, IRTAUrtData).Name)
+        Assert.AreEqual("Clear Error Messages.", CType(ClearError, IRTAUrtData).Description)
         Assert.IsFalse(ClearError.Val)
 
     End Sub
@@ -29,8 +30,8 @@ Imports URTVBFunctionBlock
         Dim FBErrors As ConString = urtVBFB.GetElement("FBErrors")
 
         Assert.IsNotNull(FBErrors)
-        Assert.AreEqual("FBErrors", CType(FBErrors, IUrtData).Name)
-        Assert.AreEqual("Error on Last Run.", CType(FBErrors, IUrtData).Description)
+        Assert.AreEqual("FBErrors", CType(FBErrors, IRTAUrtData).Name)
+        Assert.AreEqual("Error on Last Run.", CType(FBErrors, IRTAUrtData).Description)
         Assert.AreEqual(String.Empty, FBErrors.val)
 
     End Sub
@@ -44,8 +45,8 @@ Imports URTVBFunctionBlock
         Dim FBExecTime As ConInt = urtVBFB.GetElement("FBExecTime")
 
         Assert.IsNotNull(FBExecTime)
-        Assert.AreEqual("FBExecTime", CType(FBExecTime, IUrtData).Name)
-        Assert.AreEqual("Run Time of Last FB Execution in Milliseconds.", CType(FBExecTime, IUrtData).Description)
+        Assert.AreEqual("FBExecTime", CType(FBExecTime, IRTAUrtData).Name)
+        Assert.AreEqual("Run Time of Last FB Execution in Milliseconds.", CType(FBExecTime, IRTAUrtData).Description)
         Assert.AreEqual(0, FBExecTime.Val)
 
     End Sub
@@ -59,8 +60,8 @@ Imports URTVBFunctionBlock
         Dim inAuto As ConEnum = urtVBFB.GetElement("inAuto")
 
         Assert.IsNotNull(inAuto)
-        Assert.AreEqual("inAuto", CType(inAuto, IUrtData).Name)
-        Assert.AreEqual("inAuto - Desc", CType(inAuto, IUrtData).Description)
+        Assert.AreEqual("inAuto", CType(inAuto, IRTAUrtData).Name)
+        Assert.AreEqual("inAuto - Desc", CType(inAuto, IRTAUrtData).Description)
 
         Dim expectedVal As URTVBFunctionBlock.URT.urtNOYES = URTVBFunctionBlock.URT.urtNOYES.NO
         Assert.AreEqual(CInt(expectedVal), inAuto.Val)
@@ -76,8 +77,8 @@ Imports URTVBFunctionBlock
         Dim inFillEast As ConFloat = urtVBFB.GetElement("inFillEast")
 
         Assert.IsNotNull(inFillEast)
-        Assert.AreEqual("inFillEast", CType(inFillEast, IUrtData).Name)
-        Assert.AreEqual("inFillEast - Desc", CType(inFillEast, IUrtData).Description)
+        Assert.AreEqual("inFillEast", CType(inFillEast, IRTAUrtData).Name)
+        Assert.AreEqual("inFillEast - Desc", CType(inFillEast, IRTAUrtData).Description)
 
     End Sub
 
@@ -103,11 +104,11 @@ Imports URTVBFunctionBlock
             "FBErrors", "Note", "outStatus", "inFillEast", "inFillWest", "DivorcedTrip", "MarriedTrip",
             "inAuto", "inTankMarriedMode", "outTankMarriedStatus", "outIsMarried"}
 
-        Dim element As IUrtData
+        Dim element As IRTAUrtData
 
         For Each name In elementNames
             Trace.WriteLine("Checking " & name)
-            element = urtVBFB.GetElement(name)
+            element = CType(urtVBFB.GetElement(name), IRTAUrtData)
             Assert.IsNotNull(element)
             Assert.AreEqual(name, element.Name)
         Next

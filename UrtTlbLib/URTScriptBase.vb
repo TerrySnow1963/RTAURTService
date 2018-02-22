@@ -1,4 +1,6 @@
 ﻿Imports UrtTlbLib
+Imports RTAInterfaces
+
 
 Public Structure con_data1(Of T)
     Private Class CWrapper(Of T)
@@ -155,7 +157,7 @@ Public Class CUrtFBBase
                             ByVal myType As System.Guid,
                             ByVal iSize As Integer) As IUrtData
         For Each e In _childElements
-            If CType(e, IUrtData).Name = name Then
+            If CType(e, IRTAUrtData).Name = name Then
                 Return e
             End If
         Next
@@ -184,8 +186,8 @@ Public Class CUrtFBBase
                 Throw New Exception(String.Format("Error when trying to connect <{0}> : Unhandled GUID"))
         End Select
 
-        base.Name = name
-        base.Description = description
+        CType(base, IRTAUrtData).Name = name
+        CType(base, IRTAUrtData).Description = description
 
         _childElements.Add(base)
         Return base
@@ -197,7 +199,7 @@ Public Class CUrtFBBase
 
     Public Sub Find(name As String, ByRef iid As Guid, ByRef ppIReq As Object) Implements IUrtTreeMember.Find
         For Each e In _childElements
-            If CType(e, IUrtData).Name = name Then
+            If CType(e, IRTAUrtData).Name = name Then
                 ppIReq = e
                 'ToDo work out how to get the right guid
                 iid = Guid.Empty
@@ -208,7 +210,7 @@ Public Class CUrtFBBase
 
     Public Function GetElement(v As String) As IUrtData
         For Each e In _childElements
-            If CType(e, IUrtData).Name = v Then Return e
+            If CType(e, IRTAUrtData).Name = v Then Return e
         Next
         Return Nothing
     End Function

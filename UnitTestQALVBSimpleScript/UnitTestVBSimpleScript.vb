@@ -4,6 +4,7 @@ Imports UnitTestQALVBSimpleScript
 Imports URT
 Imports RTAURTService
 Imports UrtTlbLib
+Imports RTAInterfaces
 
 <TestClass()> Public Class UnitTestVBSimpleScript
 
@@ -20,11 +21,11 @@ Imports UrtTlbLib
     Private Sub TestAllElementsConnected(urtVBFB As URTVBQALSimpleScript.URTVBQALSimpleScript)
         Dim elementNames() As String = {"inFloat1", "outFloat1", "inArrayBool", "inSize"}
 
-        Dim element As IUrtData
+        Dim element As IRTAUrtData
 
         For Each name In elementNames
             Trace.Write(String.Format("Testing {0} is not Null - ", name))
-            element = urtVBFB.GetElement(name)
+            element = CType(urtVBFB.GetElement(name), IRTAUrtData)
             Assert.IsNotNull(element)
             Assert.AreEqual(name, element.Name)
             Trace.WriteLine("OK")

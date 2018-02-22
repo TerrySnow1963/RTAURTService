@@ -61,4 +61,19 @@ End Class
 
     End Sub
 
+    <TestMethod()> Public Sub TestConStringQALUtilConnect()
+        Dim vbfb As URTVBQALSimpleScript.URT.VBScript = New URTVBQALSimpleScript.URT.VBScript
+        Dim myString As ConString = New ConString
+
+
+        Dim expectedString1 = "Some String"
+        Dim expectedString2 = "Some Other String"
+        myString.Val = expectedString1
+        Assert.AreEqual(expectedString1, myString.Val)
+        myString.Val = expectedString2
+        Assert.AreEqual(expectedString2, myString.Val)
+
+    End Sub
+
+
 End Class

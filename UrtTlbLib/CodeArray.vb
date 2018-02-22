@@ -1,5 +1,7 @@
-﻿Public MustInherit Class con_array(Of T)
-    Inherits Con_data
+﻿Imports RTAInterfaces
+
+Public MustInherit Class con_array(Of T)
+    Inherits con_data
     Implements IUrtData
     Implements IURTArray
 
