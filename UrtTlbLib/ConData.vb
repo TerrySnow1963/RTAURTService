@@ -36,6 +36,7 @@ Public MustInherit Class con_data
     End Property
 
     Public MustOverride Property Item(index As Integer) As Object Implements IRTAUrtData.Item
+    Public MustOverride ReadOnly Property Guid As Guid Implements IRTAUrtData.Guid
 
     Public Sub PutOptions(WhichOptions As Integer, SetOptions As Integer, ByRef str As String) Implements IUrtData.PutOptions
         'ToDo align with Honeywell, only the Which Option
@@ -59,15 +60,15 @@ Public MustInherit Class con_data
 
 End Class
 
-Public MustInherit Class con_scalar(Of T)
+Public MustInherit Class con_scalar(Of T1, T2)
     Inherits con_data
 
-    Protected _val As T
+    Protected _val As T1
     Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
         _val = ConvertVariant(o)
     End Sub
 
-    Protected MustOverride Function ConvertVariant(o As Object) As T
+    Protected MustOverride Function ConvertVariant(o As Object) As T1
 
     Public Overrides Function Size() As Integer
         Return 1
@@ -86,12 +87,18 @@ Public MustInherit Class con_scalar(Of T)
         End Set
     End Property
 
-    Public MustOverride Property Val As T
+    Public MustOverride Property Val As T1
+
+    Public Overrides ReadOnly Property Guid As Guid
+        Get
+            Return GetType(T2).GUID
+        End Get
+    End Property
 
 End Class
 
 Public Class ConString
-    Inherits con_scalar(Of String)
+    Inherits con_scalar(Of String, ConStringClass)
 
     Public Sub New()
         _val = String.Empty
@@ -115,7 +122,7 @@ Public Class ConStringClass
 End Class
 
 Public Class ConInt
-    Inherits con_scalar(Of Integer)
+    Inherits con_scalar(Of Integer, ConIntClass)
 
     Public Overrides Property Val As Integer
         Get
@@ -136,7 +143,7 @@ End Class
 
 
 Public Class ConBool
-    Inherits con_scalar(Of Boolean)
+    Inherits con_scalar(Of Boolean, ConBoolClass)
 
     Public Overrides Property Val As Boolean
         Get
@@ -173,7 +180,7 @@ Public Structure tSDENUM
 End Structure
 
 Public Class ConEnum
-    Inherits con_scalar(Of Integer)
+    Inherits con_scalar(Of Integer, ConEnumClass)
     Implements IUrtEnum
 
     Private _data As tSDENUM
@@ -204,44 +211,44 @@ Public Class ConEnum
     End Function
 End Class
 
-Public Class ConEnum1
-    Inherits con_scalar(Of tSDENUM)
-    Implements IUrtEnum
+'Public Class ConEnum1
+'    Inherits con_scalar(Of tSDENUM)
+'    Implements IUrtEnum
 
-    'Private _data As tSDENUM
+'    'Private _data As tSDENUM
 
-    Public Overrides Property Val As tSDENUM
-        Get
-            Return _val.EnumVal
-        End Get
-        Set(value As tSDENUM)
-            _val.EnumVal = value
-        End Set
-    End Property
+'    Public Overrides Property Val As tSDENUM
+'        Get
+'            Return _val.EnumVal
+'        End Get
+'        Set(value As tSDENUM)
+'            _val.EnumVal = value
+'        End Set
+'    End Property
 
-    Private _EnumType As String
+'    Private _EnumType As String
 
-    Public Property EnumType As String Implements IUrtEnum.EnumType
-        Get
-            Return _val.EnumType
-        End Get
-        Set(value As String)
-            _val.EnumType = value
-        End Set
-    End Property
+'    Public Property EnumType As String Implements IUrtEnum.EnumType
+'        Get
+'            Return _val.EnumType
+'        End Get
+'        Set(value As String)
+'            _val.EnumType = value
+'        End Set
+'    End Property
 
-    Protected Overrides Function ConvertVariant(o As Object) As tSDENUM
-        Dim newVal As tSDENUM = New tSDENUM
-        newVal.EnumVal = CInt(o)
-        Return newVal
-    End Function
-End Class
+'    Protected Overrides Function ConvertVariant(o As Object) As tSDENUM
+'        Dim newVal As tSDENUM = New tSDENUM
+'        newVal.EnumVal = CInt(o)
+'        Return newVal
+'    End Function
+'End Class
 
 Public Class ConEnumClass
 End Class
 
 Public Class ConFloat
-    Inherits con_scalar(Of Single)
+    Inherits con_scalar(Of Single, ConFloatClass)
 
     Public Overrides Property Val As Single
         Get
@@ -262,7 +269,7 @@ Public Class ConFloatClass
 End Class
 
 Public Class ConDouble
-    Inherits con_scalar(Of Double)
+    Inherits con_scalar(Of Double, ConDoubleClass)
 
     Public Overrides Property Val As Double
         Get
@@ -279,7 +286,6 @@ Public Class ConDouble
 End Class
 
 Public Class ConDoubleClass
-
 End Class
 
 

@@ -19,7 +19,7 @@ Imports RTAInterfaces
     End Sub
 
     Private Sub TestAllElementsConnected(urtVBFB As URTVBQALSimpleScript.URTVBQALSimpleScript)
-        Dim elementNames() As String = {"inFloat1", "outFloat1", "inArrayBool", "inSize"}
+        Dim elementNames() As String = {"inFloat1", "outFloat1", "inArrayBool", "inSize", "inArrayFloat"}
 
         Dim element As IRTAUrtData
 

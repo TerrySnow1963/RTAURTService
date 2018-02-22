@@ -30,7 +30,7 @@ Imports RTAInterfaces
         End Sub
     End Structure
 
-    Private Sub TestQALUtilConnect(Of T1 As {con_scalar(Of T3)}, T2, T3)(name As String, params As QALUtilConnectParams(Of T3))
+    Private Sub TestQALUtilConnect(Of T1 As {con_scalar(Of T3, T2)}, T2, T3)(name As String, params As QALUtilConnectParams(Of T3))
         Dim vbfb As VBScript = New VBScript
         Dim myCon As T1
         Dim myCon1 As IRTAUrtData
@@ -110,7 +110,7 @@ Imports RTAInterfaces
     <TestMethod()> Public Sub TestConFloatQALUtilConnect()
 
         'Todo, using 2 references to TesTscript causes a problem
-        Dim params As QALUtilConnectParams(Of Single) = New QALUtilConnectParams(Of Single)(12.1, -3.4))
+        Dim params As QALUtilConnectParams(Of Single) = New QALUtilConnectParams(Of Single)(12.1, -3.4)
         TestQALUtilConnect(Of ConFloat, ConFloatClass, Single)("Float1", params)
     End Sub
 

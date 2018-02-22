@@ -77,11 +77,6 @@ Public Enum urtBUF
     dbOutput = 2
 End Enum
 
-'ToDo need to change as actual implementation has ConFloat as an interface
-
-
-
-
 Public Class ConMessageClass
     Public text As String
     Public Group As urtMSGGROUP
@@ -94,14 +89,27 @@ End Class
 
 Public Class CUrtFBBase
     Implements IUrtTreeMember
+    Implements IRTAUrtTreeMember
     Implements IUrtMemberSupport
 
-    Private Shared _childElements As List(Of IUrtData) = New List(Of IUrtData)
+    'ToDo Dont know why I used shared for the list, think mistake
+    'Private Shared _childElements As List(Of IUrtData) = New List(Of IUrtData)
+    Private _childElements As List(Of IUrtData) = New List(Of IUrtData)
+    Protected _CmpPtr As IUrtTreeMember
 
     Public Sub New()
-        '_childElements = New List(Of IUrtData)
+        _CmpPtr = Me
+        _childElements = New List(Of IUrtData)
     End Sub
 
+    Public Property CmpPtr() As IUrtTreeMember
+        Get
+            Return _CmpPtr
+        End Get
+        Set(value As IUrtTreeMember)
+            _CmpPtr = value
+        End Set
+    End Property
 
     Public Shared Function Setup(
                                 ByVal name As String,
@@ -110,20 +118,15 @@ Public Class CUrtFBBase
                                 ByVal myType As System.Guid,
                                 ByVal iSize As Integer) As Object
 
-        Dim base As Object = Nothing
-
-        'Return cmpPtr.GetOrCreateChildElement(name, description, myType, iSize)
-        Return GetOrCreateChildElement(name, description, myType, iSize)
-
-        Return base
+        Return CType(cmpPtr, IRTAUrtTreeMember).GetOrCreateChildElement(name, description, myType, iSize)
     End Function
 
     Public Shared [Lib] As SomeClass
 
-    Public Shared Function GetOrCreateChildElement(ByVal name As String,
+    Public Function GetOrCreateChildElement(ByVal name As String,
                             ByVal description As String,
                             ByVal myType As System.Guid,
-                            ByVal iSize As Integer) As IUrtData
+                            ByVal iSize As Integer) As Object Implements IRTAUrtTreeMember.GetOrCreateChildElement
         For Each e In _childElements
             If CType(e, IRTAUrtData).Name = name Then
                 Return e
@@ -132,9 +135,9 @@ Public Class CUrtFBBase
         Return AddChild(name, description, myType, iSize)
     End Function
 
-    Private Shared Function AddChild(name As String, description As String, myType As Guid, iSize As Integer) As IUrtData
+    Private Function AddChild(name As String, description As String, myType As Guid, iSize As Integer) As Object
 
-        Dim base As IUrtData
+        Dim base As Object
 
         Select Case myType
             Case GetType(ConBoolClass).GUID
@@ -151,6 +154,9 @@ Public Class CUrtFBBase
                 base = New ConEnum
             Case GetType(ConArrayBoolClass).GUID
                 base = New ConArrayBool()
+                CType(base, IURTArray).Resize(iSize)
+            Case GetType(ConArrayFloatClass).GUID
+                base = New ConArrayFloat()
                 CType(base, IURTArray).Resize(iSize)
             Case Else
                 Throw New Exception(String.Format("Error when trying to connect <{0}> : Unhandled GUID"))
@@ -171,8 +177,7 @@ Public Class CUrtFBBase
         For Each e In _childElements
             If CType(e, IRTAUrtData).Name = name Then
                 ppIReq = e
-                'ToDo work out how to get the right guid
-                iid = Guid.Empty
+                iid = CType(e, IRTAUrtData).Guid
             End If
         Next
         ppIReq = Nothing
