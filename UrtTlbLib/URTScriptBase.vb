@@ -79,39 +79,7 @@ End Enum
 
 'ToDo need to change as actual implementation has ConFloat as an interface
 
-Public Class ConFloat
-    Inherits con_scalar(Of Single)
 
-    Public Val As Single
-    'Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
-    '    Val = CSng(o)
-    'End Sub
-
-    Protected Overrides Function ConvertVariant(o As Object) As Single
-        Return CSng(o)
-    End Function
-End Class
-
-Public Class ConFloatClass
-
-End Class
-
-Public Class ConDouble
-    Inherits con_scalar(Of Double)
-
-    Public Val As Double
-    'Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
-    '    Val = CDbl(o)
-    'End Sub
-
-    Protected Overrides Function ConvertVariant(o As Object) As Double
-        Return CDbl(o)
-    End Function
-End Class
-
-Public Class ConDoubleClass
-
-End Class
 
 
 Public Class ConMessageClass
@@ -177,6 +145,8 @@ Public Class CUrtFBBase
                 base = New ConInt
             Case GetType(ConFloatClass).GUID
                 base = New ConFloat
+            Case GetType(ConDoubleClass).GUID
+                base = New ConDouble
             Case GetType(ConEnumClass).GUID
                 base = New ConEnum
             Case GetType(ConArrayBoolClass).GUID

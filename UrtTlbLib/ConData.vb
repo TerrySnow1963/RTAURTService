@@ -86,6 +86,8 @@ Public MustInherit Class con_scalar(Of T)
         End Set
     End Property
 
+    Public MustOverride Property Val As T
+
 End Class
 
 Public Class ConString
@@ -95,7 +97,7 @@ Public Class ConString
         _val = String.Empty
     End Sub
 
-    Public Overridable Property Val As String
+    Public Overrides Property Val As String
         Get
             Return _val
         End Get
@@ -115,7 +117,7 @@ End Class
 Public Class ConInt
     Inherits con_scalar(Of Integer)
 
-    Public Overridable Property Val As Integer
+    Public Overrides Property Val As Integer
         Get
             Return _val
         End Get
@@ -136,7 +138,7 @@ End Class
 Public Class ConBool
     Inherits con_scalar(Of Boolean)
 
-    Public Overridable Property Val As Boolean
+    Public Overrides Property Val As Boolean
         Get
             Return _val
         End Get
@@ -156,19 +158,63 @@ End Class
 Public Structure tSDENUM
     Public EnumType As String
     Public EnumVal As Integer
+
+    Public Sub New(ByVal i As Integer)
+        EnumVal = i
+        EnumType = "ByCast"
+    End Sub
+    Public Shared Widening Operator CType(ByVal d As tSDENUM) As Integer
+        Return d.EnumVal
+    End Operator
+    Public Shared Narrowing Operator CType(ByVal b As Integer) As tSDENUM
+        Return New tSDENUM(b)
+    End Operator
+
 End Structure
 
 Public Class ConEnum
+    Inherits con_scalar(Of Integer)
+    Implements IUrtEnum
+
+    Private _data As tSDENUM
+
+    Public Overrides Property Val As Integer
+        Get
+            Return _val
+        End Get
+        Set(value As Integer)
+            _data.EnumVal = value
+            _val = value
+        End Set
+    End Property
+
+    Private _EnumType As String
+
+    Public Property EnumType As String Implements IUrtEnum.EnumType
+        Get
+            Return _data.EnumType
+        End Get
+        Set(value As String)
+            _data.EnumType = value
+        End Set
+    End Property
+
+    Protected Overrides Function ConvertVariant(o As Object) As Integer
+        Return CInt(o)
+    End Function
+End Class
+
+Public Class ConEnum1
     Inherits con_scalar(Of tSDENUM)
     Implements IUrtEnum
 
     'Private _data As tSDENUM
 
-    Public Property Val As Integer
+    Public Overrides Property Val As tSDENUM
         Get
             Return _val.EnumVal
         End Get
-        Set(value As Integer)
+        Set(value As tSDENUM)
             _val.EnumVal = value
         End Set
     End Property
@@ -192,6 +238,48 @@ Public Class ConEnum
 End Class
 
 Public Class ConEnumClass
+End Class
+
+Public Class ConFloat
+    Inherits con_scalar(Of Single)
+
+    Public Overrides Property Val As Single
+        Get
+            Return _val
+        End Get
+        Set(value As Single)
+            _val = value
+        End Set
+    End Property
+
+    Protected Overrides Function ConvertVariant(o As Object) As Single
+        Return CSng(o)
+    End Function
+End Class
+
+Public Class ConFloatClass
+
+End Class
+
+Public Class ConDouble
+    Inherits con_scalar(Of Double)
+
+    Public Overrides Property Val As Double
+        Get
+            Return _val
+        End Get
+        Set(value As Double)
+            _val = value
+        End Set
+    End Property
+
+    Protected Overrides Function ConvertVariant(o As Object) As Double
+        Return CDbl(o)
+    End Function
+End Class
+
+Public Class ConDoubleClass
+
 End Class
 
 
