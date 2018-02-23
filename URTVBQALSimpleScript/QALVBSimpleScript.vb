@@ -26,7 +26,7 @@ Namespace URT
 
         Private inFloat1, inFloat2, outFloat1 As ConFloat
         Private inSize As ConInt
-        Private inArrayBool As IURTArray
+        Private inArrayBool, inArrayFloat As IURTArray
 
         ' called when script is recompiled.  bInit is true only the first time the script successfully compiles.
         ' Note that this is not exactly like InitNew() for compiled FBs since bInit is true once each time the platform loads
@@ -43,7 +43,7 @@ Namespace URT
                 inArrayBool = QALUtil.URTArray3("inArrayBool", "inArrayBool - Descs", GetType(ConArrayBoolClass).GUID, nSize, bInit, True, CmpPtr, , 2228224)
                 inSize = QALUtil.URTScale3(Of ConInt)("inSize", "inSize - Desc", GetType(ConIntClass).GUID, bInit, nSize, CmpPtr, , 2228224)
                 outFloat1 = QALUtil.URTScale3(Of ConFloat)("outFloat1", "outFloat1 - Desc", GetType(ConFloatClass).GUID, bInit, 5.0, CmpPtr)
-
+                inArrayFloat = QALUtil.URTArray3("inArrayFloat", "Array of Input Values", GetType(ConArrayFloatClass).GUID, nSize, bInit, 1.0, CmpPtr, , 2228224)
             Catch ex As Exception
                 Call GenerateError("ConnectDataItems: " & ex.Message)
 

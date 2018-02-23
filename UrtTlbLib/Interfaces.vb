@@ -23,10 +23,9 @@ Public Interface IUrtData
     Sub PutVariantValue(ByVal o As Object, ByVal str As String)
     'todo correct signatures
     'wstring PutVariantValue(Variant vValue, Long iExtStart, long iIntStart, long nElements, urtBUF eBuffer = dbWORK);
-    Property Name As String
-    Property Description As String
-    Property Item(ByVal index As Integer) As Object
 End Interface
+
+
 
 Public Interface IUrtMemberSupport
     Sub Raise(ByVal conMsg As ConMessageClass, ByVal cookie As Integer)

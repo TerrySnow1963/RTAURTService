@@ -1,11 +1,13 @@
-﻿Public MustInherit Class con_array(Of T)
-    Inherits Con_data
+﻿Imports RTAInterfaces
+
+Public MustInherit Class con_array(Of T1, T2)
+    Inherits con_data
     Implements IUrtData
     Implements IURTArray
 
-    Protected _data As T()
+    Protected _data As T1()
 
-    Protected MustOverride Function ConvertVariant(o As Object) As T
+    Protected MustOverride Function ConvertVariant(o As Object) As T1
 
     Public Sub New()
 
@@ -48,7 +50,7 @@
     End Sub
 
     Public Sub GetArray(ByRef o As Object, Optional ByVal eBuf As urtBUF = 1) Implements IURTArray.GetArray
-        Dim result() As T
+        Dim result() As T1
         Array.Resize(result, _data.Length)
         For ii = 0 To _data.Length - 1
             result(ii) = _data(ii)
@@ -59,11 +61,17 @@
 
 #End Region
 
+    Public Overrides ReadOnly Property Guid As Guid
+        Get
+            Return GetType(T2).GUID
+        End Get
+    End Property
+
 
 End Class
 
 Public Class ConArrayBool
-    Inherits con_array(Of Boolean)
+    Inherits con_array(Of Boolean, ConArrayBoolClass)
 
     Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
         Throw New NotImplementedException()
@@ -75,4 +83,19 @@ Public Class ConArrayBool
 End Class
 
 Public Class ConArrayBoolClass
+End Class
+
+Public Class ConArrayFloat
+    Inherits con_array(Of Single, ConArrayFloatClass)
+
+    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+        Throw New NotImplementedException()
+    End Sub
+
+    Protected Overrides Function ConvertVariant(o As Object) As Single
+        Return CSng(o)
+    End Function
+End Class
+
+Public Class ConArrayFloatClass
 End Class

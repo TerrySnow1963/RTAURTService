@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E8F797E2-2142-4310-B012-68C6BC59E86B}</ProjectGuid>
+    <ProjectGuid>{A1EA83EF-676C-42BA-9C3F-46F5C87815A8}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>RTAURTService</RootNamespace>
-    <AssemblyName>RTAURTService</AssemblyName>
+    <RootNamespace>RTAInterfaces</RootNamespace>
+    <AssemblyName>RTAInterfaces</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
@@ -18,7 +18,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>RTAURTService.xml</DocumentationFile>
+    <DocumentationFile>RTAInterfaces.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -27,7 +27,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>RTAURTService.xml</DocumentationFile>
+    <DocumentationFile>RTAInterfaces.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -63,7 +63,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RTAURTService.vb" />
+    <Compile Include="RTAUrtData.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -79,7 +79,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="URTVBFunctionBlock.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -99,20 +98,6 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\RTAInterfaces\RTAInterfaces.vbproj">
-      <Project>{a1ea83ef-676c-42ba-9c3f-46f5c87815a8}</Project>
-      <Name>RTAInterfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\UrtTlbLib\UrtTlbLib.vbproj">
-      <Project>{864c6ba0-cc3f-4cfa-ad3e-647f47981f78}</Project>
-      <Name>UrtTlbLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\URT\URT.vbproj">
-      <Project>{0a9e990a-b30f-4ed8-8be0-2d55ffcf766e}</Project>
-      <Name>URT</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

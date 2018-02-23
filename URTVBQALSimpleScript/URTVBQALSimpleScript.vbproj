@@ -101,6 +101,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RTAInterfaces\RTAInterfaces.vbproj">
+      <Project>{a1ea83ef-676c-42ba-9c3f-46f5c87815a8}</Project>
+      <Name>RTAInterfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RTAURTService\RTAURTService.vbproj">
       <Project>{e8f797e2-2142-4310-b012-68c6bc59e86b}</Project>
       <Name>RTAURTService</Name>
