@@ -5,6 +5,7 @@ Imports System.Text
 Imports Microsoft.VisualStudio.TestTools.UnitTesting
 Imports UrtTlbLib
 Imports URTVBQALSimpleScript
+Imports URTVBQALSimpleScript.URT
 
 <TestClass()> Public Class UnitTestConBool
 
@@ -16,6 +17,25 @@ Imports URTVBQALSimpleScript
         Assert.IsTrue(myBool.Val)
         myBool.Val = False
         Assert.IsFalse(myBool.Val)
+
+    End Sub
+
+    <TestMethod()> Public Sub TestConBoolConnectWithInitization()
+        Dim vbfb As URTVBQALSimpleScript.URT.VBScript = New VBScript
+
+        Dim myBool As ConBool
+        Dim bInit As Boolean = True
+
+        Dim desc As String = "myBool - Desc"
+
+        myBool = QALUtil.URTScale3(Of ConBool)("myBool", desc, GetType(ConBoolClass).GUID, bInit, True, vbfb.CmpPtr(), , 2228224)
+
+        myBool.Val = True
+        Assert.IsTrue(myBool.Val)
+        myBool.Val = False
+        Assert.IsFalse(myBool.Val)
+
+        Assert.AreEqual(desc, myBool.Description)
 
     End Sub
 
@@ -54,10 +74,10 @@ End Class
         Dim myString As ConString = New ConString
         Dim expectedString1 = "Some String"
         Dim expectedString2 = "Some Other String"
-        myString.val = expectedString1
-        Assert.AreEqual(expectedString1, myString.val)
-        myString.val = expectedString2
-        Assert.AreEqual(expectedString2, myString.val)
+        myString.Val = expectedString1
+        Assert.AreEqual(expectedString1, myString.Val)
+        myString.Val = expectedString2
+        Assert.AreEqual(expectedString2, myString.Val)
 
     End Sub
 
