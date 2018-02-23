@@ -5,7 +5,7 @@ Public MustInherit Class con_array(Of T1, T2)
     Implements IUrtData
     Implements IURTArray
 
-    Protected _data As T1()
+    Protected _data(-1) As T1
 
     Protected MustOverride Function ConvertVariant(o As Object) As T1
 
@@ -19,13 +19,17 @@ Public MustInherit Class con_array(Of T1, T2)
 
 #Region "IURTData"
 
-    Public Overrides Function Size() As Integer Implements IUrtData.Size
-        Return _data.Length
-    End Function
+    Overrides ReadOnly Property Size() As Integer Implements IUrtData.Size
+        Get
+            Return _data.Length
+        End Get
+    End Property
 
-    Public Overrides Function Size(whichBuf As urtBUF) As Integer Implements IUrtData.Size
-        Return _data.Length
-    End Function
+    Public Overrides ReadOnly Property Size(whichBuf As urtBUF) As Integer Implements IUrtData.Size
+        Get
+            Return _data.Length
+        End Get
+    End Property
 
     Public Overrides Property Item(index As Integer) As Object
         Get
@@ -43,7 +47,13 @@ Public MustInherit Class con_array(Of T1, T2)
         Array.Resize(_data, nSize)
     End Sub
 
-    Public Sub PutArray(o() As Object, ByRef errStr As String, Optional ByVal eBuf As urtBUF = 1) Implements IURTArray.PutArray
+    'Public Sub PutArray(o() As Object, ByRef errStr As String, Optional ByVal eBuf As urtBUF = 1) Implements IURTArray.PutArray
+    '    For ii = 0 To o.Length - 1
+    '        _data(ii) = ConvertVariant(o(ii))
+    '    Next
+    'End Sub
+
+    Public Sub PutArray(o As Object, ByRef errStr As String, Optional ByVal eBuf As urtBUF = 1) Implements IURTArray.PutArray
         For ii = 0 To o.Length - 1
             _data(ii) = ConvertVariant(o(ii))
         Next
@@ -98,4 +108,77 @@ Public Class ConArrayFloat
 End Class
 
 Public Class ConArrayFloatClass
+End Class
+
+Public Class ConArrayDouble
+    Inherits con_array(Of Double, ConArrayDoubleClass)
+
+    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+        Throw New NotImplementedException()
+    End Sub
+
+    Protected Overrides Function ConvertVariant(o As Object) As Double
+        Return CDbl(o)
+    End Function
+End Class
+
+Public Class ConArrayDoubleClass
+End Class
+
+Public Class ConArrayInt
+    Inherits con_array(Of Integer, ConArrayIntClass)
+
+    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+        Throw New NotImplementedException()
+    End Sub
+
+    Protected Overrides Function ConvertVariant(o As Object) As Integer
+        Return CInt(o)
+    End Function
+End Class
+
+Public Class ConArrayIntClass
+End Class
+
+Public Class ConArrayString
+    Inherits con_array(Of String, ConArrayStringClass)
+
+    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+        Throw New NotImplementedException()
+    End Sub
+
+    Protected Overrides Function ConvertVariant(o As Object) As String
+        Return o.ToString
+    End Function
+End Class
+
+Public Class ConArrayStringClass
+End Class
+
+'ToDo , in urt, if the ConEnum has not been connected to the platform, then the urt throws an exception if a function is called on the IurtEnum Interface
+Public Class ConArrayEnum
+    Inherits con_array(Of Integer, ConArrayEnumClass)
+    Implements IUrtEnum
+
+    Private _data As tSDENUM
+
+    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+        Throw New NotImplementedException()
+    End Sub
+    Public Property EnumType As String Implements IUrtEnum.EnumType
+        Get
+            Return _data.EnumType
+        End Get
+        Set(value As String)
+            _data.EnumType = value
+        End Set
+    End Property
+
+    Protected Overrides Function ConvertVariant(o As Object) As Integer
+        Return CInt(o)
+    End Function
+
+End Class
+
+Public Class ConArrayEnumClass
 End Class

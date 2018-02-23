@@ -62,7 +62,7 @@ Imports RTAInterfaces
 
         Dim inArrayBool As IUrtData = urtVBFB.GetElement("inArrayBool")
 
-        Assert.AreEqual(4, inArrayBool.Size)
+        Assert.AreEqual(4, inArrayBool.Size(urtBUF.dbWork))
 
     End Sub
 
@@ -79,7 +79,7 @@ Imports RTAInterfaces
 
         urtVBFB.Execute(0, Nothing)
 
-        Assert.AreEqual(5, inArrayBool.Size)
+        Assert.AreEqual(5, inArrayBool.Size(urtBUF.dbWork))
 
     End Sub
 

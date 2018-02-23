@@ -1,57 +1,6 @@
 ﻿Imports UrtTlbLib
 Imports RTAInterfaces
 
-
-Public Structure con_data1(Of T)
-    Private Class CWrapper(Of T)
-        Public _myVal As T
-    End Class
-    Private _myOtherVal As T
-
-    Private _wrapper As CWrapper(Of T)
-    Public Property Val() As T
-        Get
-            If _wrapper Is Nothing Then
-                Return _myOtherVal
-            Else
-                Return _wrapper._myVal
-            End If
-        End Get
-        Set(value As T)
-            _myOtherVal = value
-            If Not _wrapper Is Nothing Then
-                _wrapper._myVal = value
-            End If
-        End Set
-    End Property
-
-    Public Function SetUp(ByVal Name As String,
-                          ByVal pContextITM As IUrtTreeMember,
-                          Optional ByVal iElement As Long = -1,
-                          Optional ByVal Description As String = "",
-                          Optional ByVal iSetOPtions As Long = 0,
-                          Optional ByVal Connection As String = "") As Boolean
-
-        Dim ob As Object = Nothing
-
-        Dim guid As Guid
-        pContextITM.Find(Name, guid, ob)
-
-        If ob Is Nothing Then
-            pContextITM.AddElement(Name, GetType(ConBoolClass).GUID, ob)
-        Else
-            If guid <> GetType(ConBoolClass).GUID Then
-                Throw New Exception("Wrong TypeOf for existing item")
-            End If
-            _wrapper = New CWrapper(Of T)
-            _wrapper._myVal = ob
-        End If
-        Return True
-
-    End Function
-
-End Structure
-
 Public Class ConTypes
     Private Sub New()
     End Sub
@@ -142,21 +91,34 @@ Public Class CUrtFBBase
         Select Case myType
             Case GetType(ConBoolClass).GUID
                 base = New ConBool
-            Case GetType(ConStringClass).GUID
-                base = New ConString
-            Case GetType(ConIntClass).GUID
-                base = New ConInt
-            Case GetType(ConFloatClass).GUID
-                base = New ConFloat
             Case GetType(ConDoubleClass).GUID
                 base = New ConDouble
             Case GetType(ConEnumClass).GUID
                 base = New ConEnum
+            Case GetType(ConFloatClass).GUID
+                base = New ConFloat
+            Case GetType(ConIntClass).GUID
+                base = New ConInt
+            Case GetType(ConShortClass).GUID
+                base = New ConShort
+            Case GetType(ConStringClass).GUID
+                base = New ConString
+            Case GetType(ConTimeClass).GUID
+                base = New ConTime
             Case GetType(ConArrayBoolClass).GUID
                 base = New ConArrayBool()
                 CType(base, IURTArray).Resize(iSize)
+            Case GetType(ConArrayDoubleClass).GUID
+                base = New ConArrayDouble()
+                CType(base, IURTArray).Resize(iSize)
             Case GetType(ConArrayFloatClass).GUID
                 base = New ConArrayFloat()
+                CType(base, IURTArray).Resize(iSize)
+            Case GetType(ConArrayIntClass).GUID
+                base = New ConArrayInt()
+                CType(base, IURTArray).Resize(iSize)
+            Case GetType(ConArrayStringClass).GUID
+                base = New ConArrayString()
                 CType(base, IURTArray).Resize(iSize)
             Case Else
                 Throw New Exception(String.Format("Error when trying to connect <{0}> : Unhandled GUID"))

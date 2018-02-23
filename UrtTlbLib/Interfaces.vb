@@ -1,7 +1,8 @@
 ﻿Public Interface IURTArray
     Sub Resize(ByVal nSize As Integer, Optional ByVal eBuf As urtBUF = 1)
     Sub GetArray(ByRef o As Object, Optional ByVal eBuf As urtBUF = 1)
-    Sub PutArray(ByVal o() As Object, ByRef errStr As String, Optional ByVal eBuf As urtBUF = 1)
+    'Sub PutArray(ByVal o() As Object, ByRef errStr As String, Optional ByVal eBuf As urtBUF = 1)
+    Sub PutArray(ByVal o As Object, ByRef errStr As String, Optional ByVal eBuf As urtBUF = 1)
 
 End Interface
 
@@ -17,8 +18,8 @@ End Interface
 
 Public Interface IUrtData
     Sub PutSecurityOptions(ByVal val1 As Integer, ByVal val2 As Integer, ByVal val3 As String)
-    Function Size() As Integer
-    Function Size(whichBuf As urtBUF) As Integer
+    ReadOnly Property Size() As Integer
+    ReadOnly Property Size(whichBuf As urtBUF) As Integer
     Sub PutOptions(ByVal opt1 As Integer, ByVal opt2 As Integer, ByRef str As String)
     Sub PutVariantValue(ByVal o As Object, ByVal str As String)
     'todo correct signatures

@@ -51,9 +51,9 @@ Public MustInherit Class con_data
         PutVariantValueInternal(o, str)
     End Sub
 
-    Public MustOverride Function Size() As Integer Implements IUrtData.Size
+    Public MustOverride ReadOnly Property Size() As Integer Implements IUrtData.Size
 
-    Public MustOverride Function Size(whichBuf As urtBUF) As Integer Implements IUrtData.Size
+    Public MustOverride ReadOnly Property Size(whichBuf As urtBUF) As Integer Implements IUrtData.Size
 
     Protected MustOverride Sub PutVariantValueInternal(o As Object, str As String)
 
@@ -70,13 +70,18 @@ Public MustInherit Class con_scalar(Of T1, T2)
 
     Protected MustOverride Function ConvertVariant(o As Object) As T1
 
-    Public Overrides Function Size() As Integer
-        Return 1
-    End Function
+    Public Overrides ReadOnly Property Size() As Integer
+        Get
+            Return 1
+        End Get
+    End Property
 
-    Public Overrides Function Size(whichBuf As urtBUF) As Integer
-        Return 1
-    End Function
+    Public Overrides ReadOnly Property Size(whichBuf As urtBUF) As Integer
+        Get
+            Return 1
+        End Get
+    End Property
+
 
     Public Overrides Property Item(index As Integer) As Object
         Get
@@ -144,7 +149,6 @@ End Class
 
 Public Class ConBool
     Inherits con_scalar(Of Boolean, ConBoolClass)
-
     Public Overrides Property Val As Boolean
         Get
             Return _val
@@ -195,8 +199,6 @@ Public Class ConEnum
         End Set
     End Property
 
-    Private _EnumType As String
-
     Public Property EnumType As String Implements IUrtEnum.EnumType
         Get
             Return _data.EnumType
@@ -210,39 +212,6 @@ Public Class ConEnum
         Return CInt(o)
     End Function
 End Class
-
-'Public Class ConEnum1
-'    Inherits con_scalar(Of tSDENUM)
-'    Implements IUrtEnum
-
-'    'Private _data As tSDENUM
-
-'    Public Overrides Property Val As tSDENUM
-'        Get
-'            Return _val.EnumVal
-'        End Get
-'        Set(value As tSDENUM)
-'            _val.EnumVal = value
-'        End Set
-'    End Property
-
-'    Private _EnumType As String
-
-'    Public Property EnumType As String Implements IUrtEnum.EnumType
-'        Get
-'            Return _val.EnumType
-'        End Get
-'        Set(value As String)
-'            _val.EnumType = value
-'        End Set
-'    End Property
-
-'    Protected Overrides Function ConvertVariant(o As Object) As tSDENUM
-'        Dim newVal As tSDENUM = New tSDENUM
-'        newVal.EnumVal = CInt(o)
-'        Return newVal
-'    End Function
-'End Class
 
 Public Class ConEnumClass
 End Class
@@ -286,6 +255,46 @@ Public Class ConDouble
 End Class
 
 Public Class ConDoubleClass
+End Class
+
+Public Class ConTime
+    Inherits con_scalar(Of DateTime, ConTimeClass)
+
+    Public Overrides Property Val As DateTime
+        Get
+            Return _val
+        End Get
+        Set(value As DateTime)
+            _val = value
+        End Set
+    End Property
+
+    Protected Overrides Function ConvertVariant(o As Object) As DateTime
+        Return CDate(o)
+    End Function
+End Class
+
+Public Class ConTimeClass
+End Class
+
+Public Class ConShort
+    Inherits con_scalar(Of Short, ConShortClass)
+
+    Public Overrides Property Val As Short
+        Get
+            Return _val
+        End Get
+        Set(value As Short)
+            _val = value
+        End Set
+    End Property
+
+    Protected Overrides Function ConvertVariant(o As Object) As Short
+        Return CShort(o)
+    End Function
+End Class
+
+Public Class ConShortClass
 End Class
 
 
