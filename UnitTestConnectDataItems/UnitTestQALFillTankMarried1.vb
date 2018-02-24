@@ -3,12 +3,14 @@ Imports Microsoft.VisualStudio.TestTools.UnitTesting
 Imports UrtTlbLib
 Imports URTVBFunctionBlock
 Imports RTAInterfaces
+Imports RTAURTService
 
 <TestClass()> Public Class UnitTestQALFillTankMarried1
 
     <TestMethod()> Public Sub TestConnectConBool()
+        Dim messageLog As RTAUrtTraceLogger = New RTAUrtTraceLogger
 
-        Dim urtVBFB = New URTVBFunctionBlock.URTVBQALFillTankMarried1
+        Dim urtVBFB = New URTVBQALFillTankMarried1(messageLog)
 
         urtVBFB.Connect(True)
 
@@ -18,6 +20,8 @@ Imports RTAInterfaces
         Assert.AreEqual("ClearError", CType(ClearError, IRTAUrtData).Name)
         Assert.AreEqual("Clear Error Messages.", CType(ClearError, IRTAUrtData).Description)
         Assert.IsFalse(ClearError.Val)
+
+        Assert.AreEqual(0, messageLog.Count())
 
     End Sub
 
@@ -32,7 +36,7 @@ Imports RTAInterfaces
         Assert.IsNotNull(FBErrors)
         Assert.AreEqual("FBErrors", CType(FBErrors, IRTAUrtData).Name)
         Assert.AreEqual("Error on Last Run.", CType(FBErrors, IRTAUrtData).Description)
-        Assert.AreEqual(String.Empty, FBErrors.val)
+        Assert.AreEqual(String.Empty, FBErrors.Val)
 
     End Sub
 

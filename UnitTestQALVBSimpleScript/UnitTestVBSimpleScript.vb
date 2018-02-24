@@ -5,6 +5,7 @@ Imports URT
 Imports RTAURTService
 Imports UrtTlbLib
 Imports RTAInterfaces
+Imports URTVBQALSimpleScript
 
 <TestClass()> Public Class UnitTestVBSimpleScript
 
@@ -33,7 +34,9 @@ Imports RTAInterfaces
     End Sub
 
     <TestMethod()> Public Sub TestExecuteUsingInit()
-        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
+        Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
+        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
+
         urtVBFB.Connect(True)
         TestAllElementsConnected(urtVBFB)
 
@@ -52,6 +55,7 @@ Imports RTAInterfaces
         inArrayBool.Item(1) = False
         urtVBFB.Execute(0, Nothing)
         Assert.AreEqual(15.0!, outFloat1.Val)
+        Assert.AreEqual(0, logger.Count)
 
     End Sub
 
@@ -60,7 +64,7 @@ Imports RTAInterfaces
         urtVBFB.Connect(True)
         TestAllElementsConnected(urtVBFB)
 
-        Dim inArrayBool As IUrtData = urtVBFB.GetElement("inArrayBool")
+        Dim inArrayBool As UrtTlbLib.IUrtData = urtVBFB.GetElement("inArrayBool")
 
         Assert.AreEqual(4, inArrayBool.Size(urtBUF.dbWork))
 
@@ -73,7 +77,7 @@ Imports RTAInterfaces
 
         Dim inSize As ConInt = urtVBFB.GetElement("inSize")
 
-        Dim inArrayBool As IUrtData = urtVBFB.GetElement("inArrayBool")
+        Dim inArrayBool As UrtTlbLib.IUrtData = urtVBFB.GetElement("inArrayBool")
 
         inSize.Val = 5
 

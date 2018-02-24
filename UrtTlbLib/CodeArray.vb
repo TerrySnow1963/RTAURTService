@@ -160,17 +160,17 @@ Public Class ConArrayEnum
     Inherits con_array(Of Integer, ConArrayEnumClass)
     Implements IUrtEnum
 
-    Private _data As tSDENUM
+    Private _theEnum As tSDENUM
 
     Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
         Throw New NotImplementedException()
     End Sub
     Public Property EnumType As String Implements IUrtEnum.EnumType
         Get
-            Return _data.EnumType
+            Return _theEnum.EnumType
         End Get
         Set(value As String)
-            _data.EnumType = value
+            _theEnum.EnumType = value
         End Set
     End Property
 
@@ -181,4 +181,34 @@ Public Class ConArrayEnum
 End Class
 
 Public Class ConArrayEnumClass
+End Class
+
+Public Class ConArrayTime
+    Inherits con_array(Of DateTime, ConArrayTimeClass)
+
+    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+        Throw New NotImplementedException()
+    End Sub
+
+    Protected Overrides Function ConvertVariant(o As Object) As DateTime
+        Return CDate(o)
+    End Function
+End Class
+
+Public Class ConArrayTimeClass
+End Class
+
+Public Class ConArrayShort
+    Inherits con_array(Of Short, ConArrayShortClass)
+
+    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+        Throw New NotImplementedException()
+    End Sub
+
+    Protected Overrides Function ConvertVariant(o As Object) As Short
+        Return CShort(o)
+    End Function
+End Class
+
+Public Class ConArrayShortClass
 End Class

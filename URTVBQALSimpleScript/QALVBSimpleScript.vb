@@ -24,8 +24,9 @@ Namespace URT
     Public Class VBScript
         Inherits CVBScriptBase
 
-        Private inFloat1, inFloat2, outFloat1 As ConFloat
-        Private inSize As ConInt
+        Private inFloat1, inFloat2, outFloat1, outFloat2 As ConFloat
+        Private inSize, outCounter As ConInt
+        Private inUseUpCounter As ConBool
         Private inArrayBool, inArrayFloat As IURTArray
 
         ' called when script is recompiled.  bInit is true only the first time the script successfully compiles.
@@ -43,7 +44,11 @@ Namespace URT
                 inArrayBool = QALUtil.URTArray3("inArrayBool", "inArrayBool - Descs", GetType(ConArrayBoolClass).GUID, nSize, bInit, True, CmpPtr, , 2228224)
                 inSize = QALUtil.URTScale3(Of ConInt)("inSize", "inSize - Desc", GetType(ConIntClass).GUID, bInit, nSize, CmpPtr, , 2228224)
                 outFloat1 = QALUtil.URTScale3(Of ConFloat)("outFloat1", "outFloat1 - Desc", GetType(ConFloatClass).GUID, bInit, 5.0, CmpPtr)
+                outFloat2 = QALUtil.URTScale3(Of ConFloat)("outFloat2", "outFloat1 - Desc", GetType(ConFloatClass).GUID, bInit, 0.0, CmpPtr)
                 inArrayFloat = QALUtil.URTArray3("inArrayFloat", "Array of Input Values", GetType(ConArrayFloatClass).GUID, nSize, bInit, 1.0, CmpPtr, , 2228224)
+                inUseUpCounter = QALUtil.URTScale3(Of ConBool)("inUseUpCounter", "If True: Count Up, Else Count Down", GetType(ConBoolClass).GUID, bInit, True, CmpPtr, , 2228224)
+                outCounter = QALUtil.URTScale3(Of ConInt)("outCounter", "outCounter - Desc", GetType(ConIntClass).GUID, bInit, nSize, CmpPtr, , 2228224)
+
             Catch ex As Exception
                 Call GenerateError("ConnectDataItems: " & ex.Message)
 
@@ -55,14 +60,18 @@ Namespace URT
         Public Overrides Sub Execute(ByVal iCause As Integer, ByVal pITMScheduler As IUrtTreeMember)
 
             Dim I_inArrayBool() As Boolean = Nothing
+            Dim I_inArrayFloat() As Single = Nothing
+            Dim total As Single = 0
 
             Try
 
                 If inSize.Val < 1 Then inSize.Val = 1
 
                 If inSize.Val <> CType(inArrayBool, IUrtData).Size(urtBUF.dbWork) Then inArrayBool.Resize(inSize.Val, urtBUF.dbWork)
+                If inSize.Val <> CType(inArrayFloat, IUrtData).Size(urtBUF.dbWork) Then inArrayFloat.Resize(inSize.Val, urtBUF.dbWork)
 
                 I_inArrayBool = QALUtil.GetArray3(Of Boolean)(inArrayBool)
+                I_inArrayFloat = QALUtil.GetArray3(Of Single)(inArrayFloat)
 
             Catch ex As Exception
                 GenerateError("A: " & ex.Message)
@@ -81,21 +90,27 @@ Namespace URT
                     outFloat1.Val = inFloat1.Val * 3.0!
                 End If
 
-
+                For ii = 0 To inSize.Val - 1
+                    total += I_inArrayFloat(ii)
+                Next
 
             Catch ex As Exception
                 GenerateError("B: " & ex.Message)
-
             End Try
 
             ' Section Z:
             ' Copy local arrays back to the URT data items.
             Try
+                If inUseUpCounter.Val Then
+                    outCounter.Val += 1
+                Else
+                    outCounter.Val -= 1
+                End If
 
+                outFloat2.Val = total
 
             Catch ex As Exception
                 GenerateError("Z: " & ex.Message)
-
             End Try
 
         End Sub

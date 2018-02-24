@@ -120,6 +120,12 @@ Public Class CUrtFBBase
             Case GetType(ConArrayStringClass).GUID
                 base = New ConArrayString()
                 CType(base, IURTArray).Resize(iSize)
+            Case GetType(ConArrayTimeClass).GUID
+                base = New ConArrayTime()
+                CType(base, IURTArray).Resize(iSize)
+            Case GetType(ConArrayShortClass).GUID
+                base = New ConArrayShort()
+                CType(base, IURTArray).Resize(iSize)
             Case Else
                 Throw New Exception(String.Format("Error when trying to connect <{0}> : Unhandled GUID"))
         End Select
@@ -155,6 +161,16 @@ Public Class CUrtFBBase
     Public Sub AddElement(name As String, iid As Guid, ByRef ppIReq As Object) Implements IUrtTreeMember.AddElement
         Throw New NotImplementedException()
     End Sub
+
+    Public Function GetElements() As IEnumerable(Of IRTAUrtData) Implements IRTAUrtTreeMember.GetElements
+        Dim list As List(Of IRTAUrtData) = New List(Of IRTAUrtData)
+
+        For Each item In _childElements
+            list.Add(CType(item, IRTAUrtData))
+        Next
+
+        Return list.AsEnumerable
+    End Function
 End Class
 
 Public Interface IUrtEnum

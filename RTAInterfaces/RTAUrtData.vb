@@ -10,4 +10,10 @@ Public Interface IRTAUrtTreeMember
                           ByVal description As String,
                           ByVal myType As System.Guid,
                           ByVal iSize As Integer) As Object
+
+    Function GetElements() As IEnumerable(Of IRTAUrtData)
+End Interface
+
+Public Interface IRTAUrtMessageLog
+    Sub Write(ByVal message As String)
 End Interface
