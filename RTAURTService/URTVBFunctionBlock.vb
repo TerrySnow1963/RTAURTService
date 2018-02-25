@@ -1,13 +1,12 @@
-﻿Option Strict On
+﻿Option Explicit On
+Option Strict On
 Imports URT
 Imports UrtTlbLib
-Imports RTAInterfaces
-Imports RTAURTService
 
 Public MustInherit Class URTVBFunctionBlock
     Inherits CUrtFBBase
     Private _theScript As CVBScriptBase
-    Private _logger As IRTAUrtMessageLog
+    'Private _logger As IRTAUrtMessageLog
 
     Private Sub New()
         '_theScript = New URT.VBScript
@@ -18,13 +17,12 @@ Public MustInherit Class URTVBFunctionBlock
         '_childElements = New List(Of ConScalarBase)
     End Sub
 
-    Public Sub New(ByVal script As CVBScriptBase, ByVal logger As IRTAUrtMessageLog)
+    Public Sub New(ByVal script As CVBScriptBase, ByVal loggr As IRTAUrtMessageLog, ByVal HistLog As IRTAUrtHistoryLog)
         _theScript = script
         _theScript.CmpPtr = Me
 
-        If logger Is Nothing Then
-            logger = New RTAURTNullLogger
-        End If
+        Logger = loggr
+        HistoryLog = HistLog
 
         NumberOfExecuteExecutions = 0
         NumberOfConnectionsExecutions = 0
@@ -55,6 +53,15 @@ Public MustInherit Class URTVBFunctionBlock
     Public Sub Execute(ByVal iCause As Integer, ByVal pITMScheduler As IUrtTreeMember)
         _NumberOfExecuteExecutions += 1
         InternalExecute(iCause, pITMScheduler)
+        HistoryLog.Historize()
+    End Sub
+
+    Public Sub ClearMessageLog()
+        Logger.ClearLog()
+    End Sub
+
+    Public Sub ClearHistoryLog()
+        HistoryLog.ClearHistory()
     End Sub
 
 End Class

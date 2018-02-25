@@ -8,6 +8,7 @@ Imports URTVBQALSimpleScript
 Imports URTVBQALSimpleScript.URT
 Imports RTAInterfaces
 Imports RTAURTService
+Imports URT
 
 
 <TestClass()> Public Class UnitTestConTypes

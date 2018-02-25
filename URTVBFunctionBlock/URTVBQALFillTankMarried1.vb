@@ -9,11 +9,11 @@ Public Class URTVBQALFillTankMarried1
     Private Shared _theScript As URT.VBScript = New URT.VBScript
 
     Public Sub New()
-        MyBase.New(_theScript, Nothing)
+        MyBase.New(_theScript, Nothing, Nothing)
     End Sub
 
-    Public Sub New(ByVal messageLogger As IRTAUrtMessageLog)
-        MyBase.New(_theScript, messageLogger)
+    Public Sub New(ByVal messageLogger As IRTAUrtMessageLog, Optional historyLogger As IRTAUrtHistoryLog = Nothing)
+        MyBase.New(_theScript, messageLogger, historyLogger)
     End Sub
 
     Protected Overrides Sub InternalConnect(ByVal WithInit As Boolean)

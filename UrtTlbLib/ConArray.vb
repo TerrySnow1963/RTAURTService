@@ -77,15 +77,15 @@ Public MustInherit Class con_array(Of T1, T2)
         End Get
     End Property
 
+    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+        Item(0) = ConvertVariant(o)
+    End Sub
+
 
 End Class
 
 Public Class ConArrayBool
     Inherits con_array(Of Boolean, ConArrayBoolClass)
-
-    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
-        Throw New NotImplementedException()
-    End Sub
 
     Protected Overrides Function ConvertVariant(o As Object) As Boolean
         Return CBool(o)
@@ -98,9 +98,9 @@ End Class
 Public Class ConArrayFloat
     Inherits con_array(Of Single, ConArrayFloatClass)
 
-    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
-        Throw New NotImplementedException()
-    End Sub
+    'Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+    '    Throw New NotImplementedException()
+    'End Sub
 
     Protected Overrides Function ConvertVariant(o As Object) As Single
         Return CSng(o)
@@ -113,9 +113,9 @@ End Class
 Public Class ConArrayDouble
     Inherits con_array(Of Double, ConArrayDoubleClass)
 
-    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
-        Throw New NotImplementedException()
-    End Sub
+    'Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+    '    Throw New NotImplementedException()
+    'End Sub
 
     Protected Overrides Function ConvertVariant(o As Object) As Double
         Return CDbl(o)
@@ -128,9 +128,9 @@ End Class
 Public Class ConArrayInt
     Inherits con_array(Of Integer, ConArrayIntClass)
 
-    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
-        Throw New NotImplementedException()
-    End Sub
+    'Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+    '    Throw New NotImplementedException()
+    'End Sub
 
     Protected Overrides Function ConvertVariant(o As Object) As Integer
         Return CInt(o)
@@ -143,9 +143,9 @@ End Class
 Public Class ConArrayString
     Inherits con_array(Of String, ConArrayStringClass)
 
-    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
-        Throw New NotImplementedException()
-    End Sub
+    'Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+    '    Throw New NotImplementedException()
+    'End Sub
 
     Protected Overrides Function ConvertVariant(o As Object) As String
         Return o.ToString
@@ -162,9 +162,9 @@ Public Class ConArrayEnum
 
     Private _theEnum As tSDENUM
 
-    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
-        Throw New NotImplementedException()
-    End Sub
+    'Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+    '    Throw New NotImplementedException()
+    'End Sub
     Public Property EnumType As String Implements IUrtEnum.EnumType
         Get
             Return _theEnum.EnumType
@@ -186,9 +186,9 @@ End Class
 Public Class ConArrayTime
     Inherits con_array(Of DateTime, ConArrayTimeClass)
 
-    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
-        Throw New NotImplementedException()
-    End Sub
+    'Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+    '    Throw New NotImplementedException()
+    'End Sub
 
     Protected Overrides Function ConvertVariant(o As Object) As DateTime
         Return CDate(o)
@@ -201,9 +201,9 @@ End Class
 Public Class ConArrayShort
     Inherits con_array(Of Short, ConArrayShortClass)
 
-    Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
-        Throw New NotImplementedException()
-    End Sub
+    'Protected Overrides Sub PutVariantValueInternal(o As Object, str As String)
+    '    Throw New NotImplementedException()
+    'End Sub
 
     Protected Overrides Function ConvertVariant(o As Object) As Short
         Return CShort(o)

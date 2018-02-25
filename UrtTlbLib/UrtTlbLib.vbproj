@@ -63,7 +63,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CodeArray.vb" />
+    <Compile Include="ConArray.vb" />
     <Compile Include="ConData.vb" />
     <Compile Include="Interfaces.vb" />
     <Compile Include="URTScriptBase.vb" />

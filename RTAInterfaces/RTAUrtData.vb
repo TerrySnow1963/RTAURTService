@@ -14,6 +14,3 @@ Public Interface IRTAUrtTreeMember
     Function GetElements() As IEnumerable(Of IRTAUrtData)
 End Interface
 
-Public Interface IRTAUrtMessageLog
-    Sub Write(ByVal message As String)
-End Interface

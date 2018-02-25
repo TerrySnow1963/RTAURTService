@@ -79,6 +79,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="RTAUrtTraceHistory.vb" />
+    <Compile Include="RTAUrtTraceLogger.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -100,6 +102,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RTAInterfaces\RTAInterfaces.vbproj">
+      <Project>{a1ea83ef-676c-42ba-9c3f-46f5c87815a8}</Project>
+      <Name>RTAInterfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\UrtTlbLib\UrtTlbLib.vbproj">
       <Project>{864c6ba0-cc3f-4cfa-ad3e-647f47981f78}</Project>
       <Name>UrtTlbLib</Name>
