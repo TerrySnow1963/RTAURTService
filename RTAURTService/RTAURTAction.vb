@@ -5,8 +5,11 @@ Imports RTAInterfaces
 Imports URT
 
 Public Interface RTAURTAction
-    Sub Execute(ByVal vbfb As URTVBFunctionBlock, ByRef commands As RTAURTActionParameters)
+    Sub Execute(ByVal vbfb As URTVBFunctionBlock, ByRef params As RTAURTActionParameters)
+End Interface
 
+Public Interface IRTAURTActionParameters
+    Function GetCommand() As RTAURTAction
 End Interface
 
 Public Class RaiseMessage
@@ -18,6 +21,52 @@ Public Class RaiseMessage
         msg.text = msgString
         vbfb.Raise(msg, 0)
     End Sub
+End Class
+
+Public Class CommandFactory
+
+    Private Shared _RTAURTActionConnect As RTAURTActionConnect
+    Private Shared _RTAURTActionEnableHistory As RTAURTActionEnableHistory
+    Private Shared _RTAURTActionExecute As RTAURTActionExecute
+    Private Shared _RTAURTActionSetValues As RTAURTActionSetValues
+    Private Shared _RTAURTActionMessage As RTAURTActionMessage
+    Private Shared _RTAURTActionClearLogs As RTAURTActionClearLogs
+    Private Shared _RTAURTActionSequence As RTAURTActionSequence
+
+    Private Shared Function MakeCommand(Of T As {New})(ByVal var As T) As RTAURTAction
+        If var Is Nothing Then
+            var = New T
+        End If
+        Return var
+    End Function
+
+    Public Shared Function MakeConnectCommand() As RTAURTAction
+        Return MakeCommand(_RTAURTActionConnect)
+    End Function
+
+    Public Shared Function MakeEnableHistoryCommand() As RTAURTAction
+        Return MakeCommand(_RTAURTActionEnableHistory)
+    End Function
+
+    Public Shared Function MakeExecuteCommand() As RTAURTAction
+        Return MakeCommand(_RTAURTActionExecute)
+    End Function
+
+    Public Shared Function MakeSetValuesCommand() As RTAURTAction
+        Return MakeCommand(_RTAURTActionSetValues)
+    End Function
+
+    Public Shared Function MakeMessageCommand() As RTAURTAction
+        Return MakeCommand(_RTAURTActionMessage)
+    End Function
+
+    Public Shared Function MakeClearLogsCommand() As RTAURTAction
+        Return MakeCommand(_RTAURTActionClearLogs)
+    End Function
+
+    Public Shared Function MakeSequenceCommand() As RTAURTAction
+        Return MakeCommand(_RTAURTActionSequence)
+    End Function
 End Class
 
 Public Class RTAURTActionConnect
@@ -66,8 +115,6 @@ Public Class RTAURTActionEnableHistory
     End Sub
 End Class
 
-
-
 Public Class RTAURTActionExecute
     Implements RTAURTAction
 
@@ -94,9 +141,11 @@ Public Class RTAURTActionExecute
     End Sub
 End Class
 
-Public Class SetValuesActionErrorMessages
-    Public Const CantFindElement As String = "Set Values Error: Cannot Find Element"
+Public Class RTAURTActionErrorMessages
+    Public Const SentValuesErrorCantFindElement As String = "Set Values Error: Cannot Find Element"
+    Public Const SequenceErrorNoCommands As String = "Sequence Error: Sequence contains no commands"
 End Class
+
 Public Class RTAURTActionSetValues
     Implements RTAURTAction
 
@@ -227,6 +276,10 @@ Public Class RTAURTActionClearLogs
 End Class
 
 Public MustInherit Class RTAURTActionParameters
+    Implements IRTAURTActionParameters
+
+    Public MustOverride Function GetCommand() As RTAURTAction Implements IRTAURTActionParameters.GetCommand
+
 End Class
 
 Public Class RTAURTActionConnectParameters
@@ -238,6 +291,10 @@ Public Class RTAURTActionConnectParameters
     Public Sub New(bInit As Boolean)
         Init = bInit
     End Sub
+
+    Public Overrides Function GetCommand() As RTAURTAction
+        Return CommandFactory.MakeConnectCommand
+    End Function
 End Class
 
 Public Class RTAURTActionExecuteParameters
@@ -251,6 +308,10 @@ Public Class RTAURTActionExecuteParameters
         End If
         Count = cnt
     End Sub
+
+    Public Overrides Function GetCommand() As RTAURTAction
+        Return CommandFactory.MakeExecuteCommand
+    End Function
 End Class
 
 Public Class SetValueData
@@ -283,6 +344,10 @@ Public Class RTAURTActionSetValuesParameters
         _list.Add(New SetValueData(Name, val, idx))
     End Sub
 
+    Public Overrides Function GetCommand() As RTAURTAction
+        Return CommandFactory.MakeSetValuesCommand
+    End Function
+
     Public ReadOnly Property NameValueList As List(Of SetValueData)
         Get
             Return _list
@@ -304,6 +369,10 @@ Public Class RTAURTActionEnableHistoryParameters
     Public Sub EnableHistoryFor(ByVal Name As String)
         NamesToHistorize.Add(Name)
     End Sub
+
+    Public Overrides Function GetCommand() As RTAURTAction
+        Return CommandFactory.MakeEnableHistoryCommand
+    End Function
 End Class
 
 Public Class RTAURTActionMessageParameters
@@ -316,6 +385,9 @@ Public Class RTAURTActionMessageParameters
 
     Public ReadOnly Property MessageText As String
 
+    Public Overrides Function GetCommand() As RTAURTAction
+        Return CommandFactory.MakeMessageCommand()
+    End Function
 End Class
 
 Public Class RTAURTActionClearLogsParameters
@@ -328,5 +400,8 @@ Public Class RTAURTActionClearLogsParameters
 
     Public ReadOnly Property LogsToClear As RTAURTActionClearLogs.Logs
 
+    Public Overrides Function GetCommand() As RTAURTAction
+        Return CommandFactory.MakeClearLogsCommand
+    End Function
 End Class
 

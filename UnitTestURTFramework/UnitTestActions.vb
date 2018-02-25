@@ -340,11 +340,10 @@ End Class
 
         Connect(urtVBFB)
 
-        Dim testMsg As String = "Test Message from CommandMessage"
-        Dim MessageAction As New RTAURTActionMessage
-        Dim MessageActionParams As New RTAURTActionMessageParameters(testMsg)
+        Dim testMsg As String = "This is a test Message"
+        Dim MessageActionParams = New RTAURTActionMessageParameters(testMsg)
 
-        MessageAction.Execute(urtVBFB, MessageActionParams)
+        MessageActionParams.GetCommand.Execute(urtVBFB, MessageActionParams)
 
         Assert.AreEqual(1, logger.Count)
         Assert.AreEqual(testMsg, logger.GetLastMessage)
