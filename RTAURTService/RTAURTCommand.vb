@@ -4,12 +4,12 @@ Imports UrtTlbLib
 Imports RTAInterfaces
 Imports URT
 
-Public Interface RTAURTAction
-    Sub Execute(ByVal vbfb As URTVBFunctionBlock, ByRef params As RTAURTActionParameters)
+Public Interface RTAURTCommand
+    Sub Execute(ByVal vbfb As URTVBFunctionBlock, ByRef params As RTAURTCommandParameters)
 End Interface
 
-Public Interface IRTAURTActionParameters
-    Function GetCommand() As RTAURTAction
+Public Interface IRTAURTCommandParameters
+    Function GetCommand() As RTAURTCommand
 End Interface
 
 Public Class RaiseMessage
@@ -25,80 +25,80 @@ End Class
 
 Public Class CommandFactory
 
-    Private Shared _RTAURTActionConnect As RTAURTActionConnect
-    Private Shared _RTAURTActionEnableHistory As RTAURTActionEnableHistory
-    Private Shared _RTAURTActionExecute As RTAURTActionExecute
-    Private Shared _RTAURTActionSetValues As RTAURTActionSetValues
-    Private Shared _RTAURTActionMessage As RTAURTActionMessage
-    Private Shared _RTAURTActionClearLogs As RTAURTActionClearLogs
-    Private Shared _RTAURTActionSequence As RTAURTActionSequence
+    Private Shared _RTAURTCommandConnect As RTAURTCommandConnect
+    Private Shared _RTAURTCommandEnableHistory As RTAURTCommandEnableHistory
+    Private Shared _RTAURTCommandExecute As RTAURTCommandExecute
+    Private Shared _RTAURTCommandSetValues As RTAURTCommandSetValues
+    Private Shared _RTAURTCommandMessage As RTAURTCommandMessage
+    Private Shared _RTAURTCommandClearLogs As RTAURTCommandClearLogs
+    Private Shared _RTAURTCommandSequence As RTAURTCommandSequence
 
-    Private Shared Function MakeCommand(Of T As {New})(ByVal var As T) As RTAURTAction
+    Private Shared Function MakeCommand(Of T As {New})(ByVal var As T) As RTAURTCommand
         If var Is Nothing Then
             var = New T
         End If
         Return var
     End Function
 
-    Public Shared Function MakeConnectCommand() As RTAURTAction
-        Return MakeCommand(_RTAURTActionConnect)
+    Public Shared Function MakeConnectCommand() As RTAURTCommand
+        Return MakeCommand(_RTAURTCommandConnect)
     End Function
 
-    Public Shared Function MakeEnableHistoryCommand() As RTAURTAction
-        Return MakeCommand(_RTAURTActionEnableHistory)
+    Public Shared Function MakeEnableHistoryCommand() As RTAURTCommand
+        Return MakeCommand(_RTAURTCommandEnableHistory)
     End Function
 
-    Public Shared Function MakeExecuteCommand() As RTAURTAction
-        Return MakeCommand(_RTAURTActionExecute)
+    Public Shared Function MakeExecuteCommand() As RTAURTCommand
+        Return MakeCommand(_RTAURTCommandExecute)
     End Function
 
-    Public Shared Function MakeSetValuesCommand() As RTAURTAction
-        Return MakeCommand(_RTAURTActionSetValues)
+    Public Shared Function MakeSetValuesCommand() As RTAURTCommand
+        Return MakeCommand(_RTAURTCommandSetValues)
     End Function
 
-    Public Shared Function MakeMessageCommand() As RTAURTAction
-        Return MakeCommand(_RTAURTActionMessage)
+    Public Shared Function MakeMessageCommand() As RTAURTCommand
+        Return MakeCommand(_RTAURTCommandMessage)
     End Function
 
-    Public Shared Function MakeClearLogsCommand() As RTAURTAction
-        Return MakeCommand(_RTAURTActionClearLogs)
+    Public Shared Function MakeClearLogsCommand() As RTAURTCommand
+        Return MakeCommand(_RTAURTCommandClearLogs)
     End Function
 
-    Public Shared Function MakeSequenceCommand() As RTAURTAction
-        Return MakeCommand(_RTAURTActionSequence)
+    Public Shared Function MakeSequenceCommand() As RTAURTCommand
+        Return MakeCommand(_RTAURTCommandSequence)
     End Function
 End Class
 
-Public Class RTAURTActionConnect
-    Implements RTAURTAction
+Public Class RTAURTCommandConnect
+    Implements RTAURTCommand
 
-    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTActionParameters) Implements RTAURTAction.Execute
+    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTCommandParameters) Implements RTAURTCommand.Execute
 
         Dim init As Boolean = True
 
-        Dim connectParams As RTAURTActionConnectParameters
+        Dim connectParams As RTAURTCommandConnectParameters
         If Not params Is Nothing Then
-            connectParams = TryCast(params, RTAURTActionConnectParameters)
+            connectParams = TryCast(params, RTAURTCommandConnectParameters)
             If Not connectParams Is Nothing Then
                 init = connectParams.Init
             Else
-                RaiseMessage.Raise(vbfb, "Unexpected Type for action Connect parameter")
+                RaiseMessage.Raise(vbfb, "Unexpected Type for Command Connect parameter")
             End If
         End If
         vbfb.Connect(init)
     End Sub
 End Class
 
-Public Class RTAURTActionEnableHistory
-    Implements RTAURTAction
+Public Class RTAURTCommandEnableHistory
+    Implements RTAURTCommand
 
-    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTActionParameters) Implements RTAURTAction.Execute
+    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTCommandParameters) Implements RTAURTCommand.Execute
 
         Dim init As Boolean = True
 
-        Dim enableHistParams As RTAURTActionEnableHistoryParameters
+        Dim enableHistParams As RTAURTCommandEnableHistoryParameters
         If Not params Is Nothing Then
-            enableHistParams = TryCast(params, RTAURTActionEnableHistoryParameters)
+            enableHistParams = TryCast(params, RTAURTCommandEnableHistoryParameters)
             If Not enableHistParams Is Nothing Then
                 vbfb.HistoryLog = enableHistParams.HistoryLogger
 
@@ -108,23 +108,23 @@ Public Class RTAURTActionEnableHistory
                     End If
                 Next
             Else
-                    RaiseMessage.Raise(vbfb, "Unexpected Type for action Connect parameter")
+                RaiseMessage.Raise(vbfb, "Unexpected Type for Command Connect parameter")
             End If
         End If
 
     End Sub
 End Class
 
-Public Class RTAURTActionExecute
-    Implements RTAURTAction
+Public Class RTAURTCommandExecute
+    Implements RTAURTCommand
 
-    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTActionParameters) Implements RTAURTAction.Execute
+    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTCommandParameters) Implements RTAURTCommand.Execute
 
         Dim count As Integer = 1
 
-        Dim executeParams As RTAURTActionExecuteParameters
+        Dim executeParams As RTAURTCommandExecuteParameters
         If Not params Is Nothing Then
-            executeParams = TryCast(params, RTAURTActionExecuteParameters)
+            executeParams = TryCast(params, RTAURTCommandExecuteParameters)
             If Not executeParams Is Nothing Then
                 count = executeParams.Count
                 If count < 1 Then
@@ -141,13 +141,13 @@ Public Class RTAURTActionExecute
     End Sub
 End Class
 
-Public Class RTAURTActionErrorMessages
+Public Class RTAURTCommandErrorMessages
     Public Const SentValuesErrorCantFindElement As String = "Set Values Error: Cannot Find Element"
     Public Const SequenceErrorNoCommands As String = "Sequence Error: Sequence contains no commands"
 End Class
 
-Public Class RTAURTActionSetValues
-    Implements RTAURTAction
+Public Class RTAURTCommandSetValues
+    Implements RTAURTCommand
 
     Public Structure ErrorMessagesStruct
         Private Shared _PREFIX As String = "Set Values Error: "
@@ -171,13 +171,13 @@ Public Class RTAURTActionSetValues
     End Structure
     Public ErrorMessages As ErrorMessagesStruct
 
-    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTActionParameters) Implements RTAURTAction.Execute
+    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTCommandParameters) Implements RTAURTCommand.Execute
 
-        Dim setValueParams As RTAURTActionSetValuesParameters
+        Dim setValueParams As RTAURTCommandSetValuesParameters
         Dim idata As IUrtData
 
         If Not params Is Nothing Then
-            setValueParams = TryCast(params, RTAURTActionSetValuesParameters)
+            setValueParams = TryCast(params, RTAURTCommandSetValuesParameters)
             If Not setValueParams Is Nothing Then
                 For Each svItem In setValueParams.NameValueList
                     idata = vbfb.GetElement(svItem.Name)
@@ -218,16 +218,16 @@ Public Class RTAURTActionSetValues
     End Sub
 End Class
 
-Public Class RTAURTActionMessage
-    Implements RTAURTAction
+Public Class RTAURTCommandMessage
+    Implements RTAURTCommand
 
-    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTActionParameters) Implements RTAURTAction.Execute
+    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTCommandParameters) Implements RTAURTCommand.Execute
 
         Dim msgString As String
 
-        Dim messageParams As RTAURTActionMessageParameters
+        Dim messageParams As RTAURTCommandMessageParameters
         If Not params Is Nothing Then
-            messageParams = TryCast(params, RTAURTActionMessageParameters)
+            messageParams = TryCast(params, RTAURTCommandMessageParameters)
             If Not messageParams Is Nothing Then
                 msgString = messageParams.MessageText
                 If String.IsNullOrEmpty(msgString) Then
@@ -243,8 +243,8 @@ Public Class RTAURTActionMessage
     End Sub
 End Class
 
-Public Class RTAURTActionClearLogs
-    Implements RTAURTAction
+Public Class RTAURTCommandClearLogs
+    Implements RTAURTCommand
 
     Public Enum Logs
         MessageLog = 0
@@ -252,20 +252,20 @@ Public Class RTAURTActionClearLogs
         MessageAndHistory = 2
     End Enum
 
-    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTActionParameters) Implements RTAURTAction.Execute
+    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTCommandParameters) Implements RTAURTCommand.Execute
 
-        Dim clearLogsParams As RTAURTActionClearLogsParameters
+        Dim clearLogsParams As RTAURTCommandClearLogsParameters
         If Not params Is Nothing Then
-            clearLogsParams = TryCast(params, RTAURTActionClearLogsParameters)
+            clearLogsParams = TryCast(params, RTAURTCommandClearLogsParameters)
             If Not clearLogsParams Is Nothing Then
                 Select Case clearLogsParams.LogsToClear
                     Case Logs.MessageLog
-                        vbfb.ClearMessageLog
+                        vbfb.ClearMessageLog()
                     Case Logs.HistoryLog
-                        vbfb.ClearHistoryLog
+                        vbfb.ClearHistoryLog()
                     Case Logs.MessageAndHistory
-                        vbfb.ClearMessageLog
-                        vbfb.ClearHistoryLog
+                        vbfb.ClearMessageLog()
+                        vbfb.ClearHistoryLog()
                 End Select
             Else
 
@@ -275,15 +275,15 @@ Public Class RTAURTActionClearLogs
     End Sub
 End Class
 
-Public MustInherit Class RTAURTActionParameters
-    Implements IRTAURTActionParameters
+Public MustInherit Class RTAURTCommandParameters
+    Implements IRTAURTCommandParameters
 
-    Public MustOverride Function GetCommand() As RTAURTAction Implements IRTAURTActionParameters.GetCommand
+    Public MustOverride Function GetCommand() As RTAURTCommand Implements IRTAURTCommandParameters.GetCommand
 
 End Class
 
-Public Class RTAURTActionConnectParameters
-    Inherits RTAURTActionParameters
+Public Class RTAURTCommandConnectParameters
+    Inherits RTAURTCommandParameters
     Public Property Init As Boolean
     Private Sub New()
 
@@ -292,13 +292,13 @@ Public Class RTAURTActionConnectParameters
         Init = bInit
     End Sub
 
-    Public Overrides Function GetCommand() As RTAURTAction
+    Public Overrides Function GetCommand() As RTAURTCommand
         Return CommandFactory.MakeConnectCommand
     End Function
 End Class
 
-Public Class RTAURTActionExecuteParameters
-    Inherits RTAURTActionParameters
+Public Class RTAURTCommandExecuteParameters
+    Inherits RTAURTCommandParameters
     Public Property Count As Integer
     Private Sub New()
     End Sub
@@ -309,7 +309,7 @@ Public Class RTAURTActionExecuteParameters
         Count = cnt
     End Sub
 
-    Public Overrides Function GetCommand() As RTAURTAction
+    Public Overrides Function GetCommand() As RTAURTCommand
         Return CommandFactory.MakeExecuteCommand
     End Function
 End Class
@@ -332,8 +332,8 @@ Public Class SetValueData
     End Sub
 End Class
 
-Public Class RTAURTActionSetValuesParameters
-    Inherits RTAURTActionParameters
+Public Class RTAURTCommandSetValuesParameters
+    Inherits RTAURTCommandParameters
 
     Public _list As List(Of SetValueData)
     Public Sub New()
@@ -344,7 +344,7 @@ Public Class RTAURTActionSetValuesParameters
         _list.Add(New SetValueData(Name, val, idx))
     End Sub
 
-    Public Overrides Function GetCommand() As RTAURTAction
+    Public Overrides Function GetCommand() As RTAURTCommand
         Return CommandFactory.MakeSetValuesCommand
     End Function
 
@@ -355,8 +355,8 @@ Public Class RTAURTActionSetValuesParameters
     End Property
 End Class
 
-Public Class RTAURTActionEnableHistoryParameters
-    Inherits RTAURTActionParameters
+Public Class RTAURTCommandEnableHistoryParameters
+    Inherits RTAURTCommandParameters
 
     Public ReadOnly Property HistoryLogger As IRTAUrtHistoryLog
 
@@ -370,13 +370,13 @@ Public Class RTAURTActionEnableHistoryParameters
         NamesToHistorize.Add(Name)
     End Sub
 
-    Public Overrides Function GetCommand() As RTAURTAction
+    Public Overrides Function GetCommand() As RTAURTCommand
         Return CommandFactory.MakeEnableHistoryCommand
     End Function
 End Class
 
-Public Class RTAURTActionMessageParameters
-    Inherits RTAURTActionParameters
+Public Class RTAURTCommandMessageParameters
+    Inherits RTAURTCommandParameters
 
     Public Sub New(ByVal msg As String)
         MessageText = msg
@@ -385,22 +385,22 @@ Public Class RTAURTActionMessageParameters
 
     Public ReadOnly Property MessageText As String
 
-    Public Overrides Function GetCommand() As RTAURTAction
+    Public Overrides Function GetCommand() As RTAURTCommand
         Return CommandFactory.MakeMessageCommand()
     End Function
 End Class
 
-Public Class RTAURTActionClearLogsParameters
-    Inherits RTAURTActionParameters
+Public Class RTAURTCommandClearLogsParameters
+    Inherits RTAURTCommandParameters
 
-    Public Sub New(ByVal lgsToClear As RTAURTActionClearLogs.Logs)
+    Public Sub New(ByVal lgsToClear As RTAURTCommandClearLogs.Logs)
         LogsToClear = lgsToClear
 
     End Sub
 
-    Public ReadOnly Property LogsToClear As RTAURTActionClearLogs.Logs
+    Public ReadOnly Property LogsToClear As RTAURTCommandClearLogs.Logs
 
-    Public Overrides Function GetCommand() As RTAURTAction
+    Public Overrides Function GetCommand() As RTAURTCommand
         Return CommandFactory.MakeClearLogsCommand
     End Function
 End Class

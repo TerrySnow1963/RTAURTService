@@ -4,10 +4,10 @@ Imports URT
 
 
 Public Class SequenceFactory
-    Public Shared Function MakeSequence() As RTAURTActionSequenceParameters
+    Public Shared Function MakeSequence() As RTAURTCommandSequenceParameters
 
         Dim uniqueName As String = GetNextName()
-        Return New RTAURTActionSequenceParameters(uniqueName)
+        Return New RTAURTCommandSequenceParameters(uniqueName)
 
     End Function
 
@@ -18,40 +18,50 @@ Public Class SequenceFactory
 End Class
 
 
-Public Class RTAURTActionSequence
-    Implements RTAURTAction
+Public Class RTAURTCommandSequence
+    Implements RTAURTCommand
 
-    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTActionParameters) Implements RTAURTAction.Execute
+    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTCommandParameters) Implements RTAURTCommand.Execute
 
-        Dim seqParams As RTAURTActionSequenceParameters
+        Dim seqParams As RTAURTCommandSequenceParameters
 
         If Not params Is Nothing Then
-            seqParams = TryCast(params, RTAURTActionSequenceParameters)
+            seqParams = TryCast(params, RTAURTCommandSequenceParameters)
             If Not seqParams Is Nothing Then
-                RaiseMessage.Raise(vbfb, RTAURTActionErrorMessages.SequenceErrorNoCommands)
+                'ToDo need to check for recursion
+                For Each cmdParams In seqParams.GetCommandList
+                    cmdParams.GetCommand.Execute(vbfb, cmdParams)
+                Next
+                If seqParams.GetCommandList.Count = 0 Then
+                    RaiseMessage.Raise(vbfb, RTAURTCommandErrorMessages.SequenceErrorNoCommands)
+                End If
             Else
-
+                RaiseMessage.Raise(vbfb, "Sequence Command Error: passed wrong parameter type")
             End If
         End If
 
     End Sub
 End Class
 
-Public Class RTAURTActionSequenceParameters
-    Inherits RTAURTActionParameters
+Public Class RTAURTCommandSequenceParameters
+    Inherits RTAURTCommandParameters
 
-    Private _list As List(Of RTAURTAction)
+    Private _list As List(Of IRTAURTCommandParameters)
     Public Sub New(ByVal nm As String)
-        _list = New List(Of RTAURTAction)
+        _list = New List(Of IRTAURTCommandParameters)
     End Sub
 
-    Public Overrides Function GetCommand() As RTAURTAction
+    Public Overrides Function GetCommand() As RTAURTCommand
         Return CommandFactory.MakeSequenceCommand
     End Function
 
-    Public Sub AddCommandParameters(params As RTAURTActionMessageParameters)
+    Public Sub AddCommandParameters(params As IRTAURTCommandParameters)
         _list.Add(params)
     End Sub
+
+    Public Function GetCommandList() As List(Of IRTAURTCommandParameters)
+        Return _list
+    End Function
 End Class
 
 

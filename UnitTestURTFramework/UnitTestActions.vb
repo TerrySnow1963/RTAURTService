@@ -18,272 +18,272 @@ Public Class ScriptVarNames
     Public Shared inArrayFloat As String = "inArrayFloat"
 End Class
 
-<TestClass()> Public Class UnitTestActions
+<TestClass()> Public Class UnitTestCommands
     Private Const _NUM_SCRIPT_PARAMS As Integer = 8
-    <TestMethod()> Public Sub TestActionConnect()
+    <TestMethod()> Public Sub TestCommandConnect()
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
 
-        Dim ConnectAction As New RTAURTActionConnect
-        Dim ConnectActionParams As New RTAURTActionConnectParameters(True)
+        Dim ConnectCommand As New RTAURTCommandConnect
+        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
 
-        ConnectAction.Execute(urtVBFB, ConnectActionParams)
+        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
 
         Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
         Assert.AreEqual(1, urtVBFB.NumberOfConnectionsExecutions)
     End Sub
 
-    <TestMethod()> Public Sub TestActionConnectAnd1Execute()
+    <TestMethod()> Public Sub TestCommandConnectAnd1Execute()
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
 
-        Dim ConnectAction As New RTAURTActionConnect
-        Dim ConnectActionParams As New RTAURTActionConnectParameters(True)
+        Dim ConnectCommand As New RTAURTCommandConnect
+        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
 
-        Dim ExecuteAction As New RTAURTActionExecute
-        Dim ExecuteActionParams As New RTAURTActionExecuteParameters()
+        Dim ExecuteCommand As New RTAURTCommandExecute
+        Dim ExecuteCommandParams As New RTAURTCommandExecuteParameters()
 
-        ConnectAction.Execute(urtVBFB, ConnectActionParams)
+        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
 
         Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
-        ExecuteAction.Execute(urtVBFB, ExecuteActionParams)
+        ExecuteCommand.Execute(urtVBFB, ExecuteCommandParams)
 
         Assert.AreEqual(1, urtVBFB.NumberOfExecuteExecutions)
     End Sub
 
-    <TestMethod()> Public Sub TestActionConnectAnd5Executes()
+    <TestMethod()> Public Sub TestCommandConnectAnd5Executes()
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
 
-        Dim ConnectAction As New RTAURTActionConnect
-        Dim ConnectActionParams As New RTAURTActionConnectParameters(True)
+        Dim ConnectCommand As New RTAURTCommandConnect
+        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
 
         Dim NumberOfExecutes As Integer = 5
-        Dim ExecuteAction As New RTAURTActionExecute()
-        Dim ExecuteActionParams As New RTAURTActionExecuteParameters(NumberOfExecutes)
+        Dim ExecuteCommand As New RTAURTCommandExecute()
+        Dim ExecuteCommandParams As New RTAURTCommandExecuteParameters(NumberOfExecutes)
 
-        ConnectAction.Execute(urtVBFB, ConnectActionParams)
+        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
 
         Dim outCounter As ConInt = urtVBFB.GetElement(ScriptVarNames.outCounter)
         Dim InitCounterVal As Integer = 3
         outCounter.Val = InitCounterVal
 
         Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
-        ExecuteAction.Execute(urtVBFB, ExecuteActionParams)
+        ExecuteCommand.Execute(urtVBFB, ExecuteCommandParams)
 
         Assert.AreEqual(NumberOfExecutes, urtVBFB.NumberOfExecuteExecutions)
         Assert.AreEqual(1, urtVBFB.NumberOfConnectionsExecutions)
         Assert.AreEqual(NumberOfExecutes + InitCounterVal, outCounter.Val)
     End Sub
 
-    <TestMethod()> Public Sub TestActionSetValuesFor1IntValue()
+    <TestMethod()> Public Sub TestCommandSetValuesFor1IntValue()
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
 
-        Dim ConnectAction As New RTAURTActionConnect
-        Dim ConnectActionParams As New RTAURTActionConnectParameters(True)
+        Dim ConnectCommand As New RTAURTCommandConnect
+        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
 
         Dim NumberOfExecutes As Integer = 3
-        Dim ExecuteAction As New RTAURTActionExecute()
-        Dim ExecuteActionParams As New RTAURTActionExecuteParameters(NumberOfExecutes)
+        Dim ExecuteCommand As New RTAURTCommandExecute()
+        Dim ExecuteCommandParams As New RTAURTCommandExecuteParameters(NumberOfExecutes)
 
-        ConnectAction.Execute(urtVBFB, ConnectActionParams)
+        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
 
         Dim outCounter As ConInt = urtVBFB.GetElement(ScriptVarNames.outCounter)
         Dim InitCounterVal As Integer = 7
 
-        Dim SetValuesAction As New RTAURTActionSetValues()
-        Dim SetValuesActionParams As New RTAURTActionSetValuesParameters()
-        SetValuesActionParams.AddValue("outCounter", InitCounterVal)
+        Dim SetValuesCommand As New RTAURTCommandSetValues()
+        Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
+        SetValuesCommandParams.AddValue("outCounter", InitCounterVal)
 
-        SetValuesAction.Execute(urtVBFB, SetValuesActionParams)
+        SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
 
         Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
-        ExecuteAction.Execute(urtVBFB, ExecuteActionParams)
+        ExecuteCommand.Execute(urtVBFB, ExecuteCommandParams)
 
         Assert.AreEqual(NumberOfExecutes, urtVBFB.NumberOfExecuteExecutions)
         Assert.AreEqual(1, urtVBFB.NumberOfConnectionsExecutions)
         Assert.AreEqual(InitCounterVal + NumberOfExecutes, outCounter.Val)
     End Sub
 
-    <TestMethod()> Public Sub TestActionSetValuesFor2ValuesIntAndBool()
+    <TestMethod()> Public Sub TestCommandSetValuesFor2ValuesIntAndBool()
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
 
-        Dim ConnectAction As New RTAURTActionConnect
-        Dim ConnectActionParams As New RTAURTActionConnectParameters(True)
+        Dim ConnectCommand As New RTAURTCommandConnect
+        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
 
         Dim NumberOfExecutes As Integer = 3
-        Dim ExecuteAction As New RTAURTActionExecute()
-        Dim ExecuteActionParams As New RTAURTActionExecuteParameters(NumberOfExecutes)
+        Dim ExecuteCommand As New RTAURTCommandExecute()
+        Dim ExecuteCommandParams As New RTAURTCommandExecuteParameters(NumberOfExecutes)
 
-        ConnectAction.Execute(urtVBFB, ConnectActionParams)
+        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
 
         Dim outCounter As ConInt = urtVBFB.GetElement(ScriptVarNames.outCounter)
         Dim InitCounterVal As Integer = 7
 
-        Dim SetValuesAction As New RTAURTActionSetValues()
-        Dim SetValuesActionParams As New RTAURTActionSetValuesParameters()
-        SetValuesActionParams.AddValue(ScriptVarNames.outCounter, InitCounterVal)
-        SetValuesActionParams.AddValue(ScriptVarNames.inUseUpCounter, False)
+        Dim SetValuesCommand As New RTAURTCommandSetValues()
+        Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
+        SetValuesCommandParams.AddValue(ScriptVarNames.outCounter, InitCounterVal)
+        SetValuesCommandParams.AddValue(ScriptVarNames.inUseUpCounter, False)
 
-        SetValuesAction.Execute(urtVBFB, SetValuesActionParams)
+        SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
 
         Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
-        ExecuteAction.Execute(urtVBFB, ExecuteActionParams)
+        ExecuteCommand.Execute(urtVBFB, ExecuteCommandParams)
 
         Assert.AreEqual(NumberOfExecutes, urtVBFB.NumberOfExecuteExecutions)
         Assert.AreEqual(1, urtVBFB.NumberOfConnectionsExecutions)
         Assert.AreEqual(InitCounterVal - NumberOfExecutes, outCounter.Val)
     End Sub
 
-    <TestMethod()> Public Sub TestActionSetValuesForNothingNameRaisesMessage()
+    <TestMethod()> Public Sub TestCommandSetValuesForNothingNameRaisesMessage()
         Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
 
         Dim newElementValue As Single = 10.3!
 
-        Dim SetValuesAction As New RTAURTActionSetValues()
-        Dim SetValuesActionParams As New RTAURTActionSetValuesParameters()
-        SetValuesActionParams.AddValue(Nothing, newElementValue)
+        Dim SetValuesCommand As New RTAURTCommandSetValues()
+        Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
+        SetValuesCommandParams.AddValue(Nothing, newElementValue)
 
-        SetValuesAction.Execute(urtVBFB, SetValuesActionParams)
+        SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
 
         Assert.AreEqual(1, logger.Count)
-        Assert.AreEqual(SetValuesAction.ErrorMessages.CantFindElement, logger.GetLastMessage)
+        Assert.AreEqual(SetValuesCommand.ErrorMessages.CantFindElement, logger.GetLastMessage)
 
     End Sub
 
-    <TestMethod()> Public Sub TestActionSetValuesForNothingNameRaisesMessageAfterConnect()
+    <TestMethod()> Public Sub TestCommandSetValuesForNothingNameRaisesMessageAfterConnect()
         Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
 
-        Dim ConnectAction As New RTAURTActionConnect
-        Dim ConnectActionParams As New RTAURTActionConnectParameters(True)
-        ConnectAction.Execute(urtVBFB, ConnectActionParams)
+        Dim ConnectCommand As New RTAURTCommandConnect
+        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
+        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
 
         Dim newElementValue As Single = 10.3!
 
-        Dim SetValuesAction As New RTAURTActionSetValues()
-        Dim SetValuesActionParams As New RTAURTActionSetValuesParameters()
-        SetValuesActionParams.AddValue(Nothing, newElementValue)
+        Dim SetValuesCommand As New RTAURTCommandSetValues()
+        Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
+        SetValuesCommandParams.AddValue(Nothing, newElementValue)
 
-        SetValuesAction.Execute(urtVBFB, SetValuesActionParams)
+        SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
 
         Assert.AreEqual(1, logger.Count)
-        Assert.AreEqual(SetValuesAction.ErrorMessages.CantFindElement, logger.GetLastMessage)
+        Assert.AreEqual(SetValuesCommand.ErrorMessages.CantFindElement, logger.GetLastMessage)
 
     End Sub
 
-    <TestMethod()> Public Sub TestActionSetValuesForUnknownNameRaisesMessageAfterConnect()
+    <TestMethod()> Public Sub TestCommandSetValuesForUnknownNameRaisesMessageAfterConnect()
         Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
 
-        Dim ConnectAction As New RTAURTActionConnect
-        Dim ConnectActionParams As New RTAURTActionConnectParameters(True)
-        ConnectAction.Execute(urtVBFB, ConnectActionParams)
+        Dim ConnectCommand As New RTAURTCommandConnect
+        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
+        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
 
         Dim newElementValue As Single = 10.3!
 
-        Dim SetValuesAction As New RTAURTActionSetValues()
-        Dim SetValuesActionParams As New RTAURTActionSetValuesParameters()
-        SetValuesActionParams.AddValue("Does not exist", newElementValue)
+        Dim SetValuesCommand As New RTAURTCommandSetValues()
+        Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
+        SetValuesCommandParams.AddValue("Does not exist", newElementValue)
 
-        SetValuesAction.Execute(urtVBFB, SetValuesActionParams)
+        SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
 
         Assert.AreEqual(1, logger.Count)
-        Assert.AreEqual(SetValuesAction.ErrorMessages.CantFindElement, logger.GetLastMessage)
+        Assert.AreEqual(SetValuesCommand.ErrorMessages.CantFindElement, logger.GetLastMessage)
 
     End Sub
 
-    <TestMethod()> Public Sub TestActionSetValuesSingleWrongValueTypeGivesError()
+    <TestMethod()> Public Sub TestCommandSetValuesSingleWrongValueTypeGivesError()
         Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
 
-        Dim ConnectAction As New RTAURTActionConnect
-        Dim ConnectActionParams As New RTAURTActionConnectParameters(True)
-        ConnectAction.Execute(urtVBFB, ConnectActionParams)
+        Dim ConnectCommand As New RTAURTCommandConnect
+        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
+        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
 
         Dim newElementValue As String = "this cannot be a single"
 
-        Dim SetValuesAction As New RTAURTActionSetValues()
-        Dim SetValuesActionParams As New RTAURTActionSetValuesParameters()
-        SetValuesActionParams.AddValue(ScriptVarNames.inFloat1, newElementValue)
+        Dim SetValuesCommand As New RTAURTCommandSetValues()
+        Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
+        SetValuesCommandParams.AddValue(ScriptVarNames.inFloat1, newElementValue)
 
-        SetValuesAction.Execute(urtVBFB, SetValuesActionParams)
+        SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
 
         Assert.AreEqual(1, logger.Count)
-        Assert.AreEqual(SetValuesAction.ErrorMessages.ValueFailsToConvert, logger.GetLastMessage)
+        Assert.AreEqual(SetValuesCommand.ErrorMessages.ValueFailsToConvert, logger.GetLastMessage)
 
     End Sub
 
-    <TestMethod()> Public Sub TestActionSetValuesSingleArrayWrongValueTypeGivesError()
+    <TestMethod()> Public Sub TestCommandSetValuesSingleArrayWrongValueTypeGivesError()
         Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
 
-        Dim ConnectAction As New RTAURTActionConnect
-        Dim ConnectActionParams As New RTAURTActionConnectParameters(True)
-        ConnectAction.Execute(urtVBFB, ConnectActionParams)
+        Dim ConnectCommand As New RTAURTCommandConnect
+        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
+        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
 
         Dim newElementValue As String = "this cannot be a single"
 
-        Dim SetValuesAction As New RTAURTActionSetValues()
-        Dim SetValuesActionParams As New RTAURTActionSetValuesParameters()
-        SetValuesActionParams.AddValue(ScriptVarNames.inArrayFloat, newElementValue, 0)
+        Dim SetValuesCommand As New RTAURTCommandSetValues()
+        Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
+        SetValuesCommandParams.AddValue(ScriptVarNames.inArrayFloat, newElementValue, 0)
 
-        SetValuesAction.Execute(urtVBFB, SetValuesActionParams)
+        SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
 
         Assert.AreEqual(1, logger.Count)
-        Assert.AreEqual(SetValuesAction.ErrorMessages.ValueFailsToConvert, logger.GetLastMessage)
+        Assert.AreEqual(SetValuesCommand.ErrorMessages.ValueFailsToConvert, logger.GetLastMessage)
 
     End Sub
 
-    <TestMethod()> Public Sub TestActionSetValuesFor1IntArrayValue()
+    <TestMethod()> Public Sub TestCommandSetValuesFor1IntArrayValue()
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
 
-        Dim ConnectAction As New RTAURTActionConnect
-        Dim ConnectActionParams As New RTAURTActionConnectParameters(True)
-        ConnectAction.Execute(urtVBFB, Nothing)
+        Dim ConnectCommand As New RTAURTCommandConnect
+        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
+        ConnectCommand.Execute(urtVBFB, Nothing)
 
         Dim OutFloat2 As ConFloat = urtVBFB.GetElement(ScriptVarNames.outFloat2)
 
         Dim newElementValue As Single = 10.3!
 
-        Dim SetValuesAction As New RTAURTActionSetValues()
-        Dim SetValuesActionParams As New RTAURTActionSetValuesParameters()
-        SetValuesActionParams.AddValue(ScriptVarNames.inArrayFloat, newElementValue)
+        Dim SetValuesCommand As New RTAURTCommandSetValues()
+        Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
+        SetValuesCommandParams.AddValue(ScriptVarNames.inArrayFloat, newElementValue)
 
-        SetValuesAction.Execute(urtVBFB, SetValuesActionParams)
+        SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
 
-        Dim ExecuteAction As New RTAURTActionExecute()
-        Dim ExecuteActionParams As New RTAURTActionExecuteParameters()
+        Dim ExecuteCommand As New RTAURTCommandExecute()
+        Dim ExecuteCommandParams As New RTAURTCommandExecuteParameters()
         Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
-        ExecuteAction.Execute(urtVBFB, ExecuteActionParams)
+        ExecuteCommand.Execute(urtVBFB, ExecuteCommandParams)
 
         Assert.AreEqual(newElementValue + 1.0! * 3.0!, OutFloat2.Val)
     End Sub
 
     Private Sub Connect(ByVal urtVBFB As URTVBQALSimpleScript.URTVBQALSimpleScript)
-        Dim ConnectAction As New RTAURTActionConnect
-        Dim ConnectActionParams As New RTAURTActionConnectParameters(True)
-        ConnectAction.Execute(urtVBFB, ConnectActionParams)
+        Dim ConnectCommand As New RTAURTCommandConnect
+        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
+        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
     End Sub
 
     Private Sub Execute(ByVal urtVBFB As URTVBQALSimpleScript.URTVBQALSimpleScript, ByVal numberOfExecutions As Integer)
-        Dim ExecuteAction As New RTAURTActionExecute()
-        Dim ExecuteActionParams As New RTAURTActionExecuteParameters(numberOfExecutions)
+        Dim ExecuteCommand As New RTAURTCommandExecute()
+        Dim ExecuteCommandParams As New RTAURTCommandExecuteParameters(numberOfExecutions)
         Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
-        ExecuteAction.Execute(urtVBFB, ExecuteActionParams)
+        ExecuteCommand.Execute(urtVBFB, ExecuteCommandParams)
     End Sub
 
-    <TestMethod()> Public Sub TestActionEnableHistoryFor1Scalar()
+    <TestMethod()> Public Sub TestCommandEnableHistoryFor1Scalar()
 
         Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
 
         Connect(urtVBFB)
 
-        Dim EnableHistoryAction As New RTAURTActionEnableHistory
+        Dim EnableHistoryCommand As New RTAURTCommandEnableHistory
         Dim history As RTAUrtTraceHistory = New RTAUrtTraceHistory
-        Dim EnableHistoryActionParams As New RTAURTActionEnableHistoryParameters(history)
+        Dim EnableHistoryCommandParams As New RTAURTCommandEnableHistoryParameters(history)
 
-        EnableHistoryActionParams.EnableHistoryFor(ScriptVarNames.outCounter)
-        EnableHistoryAction.Execute(urtVBFB, EnableHistoryActionParams)
+        EnableHistoryCommandParams.EnableHistoryFor(ScriptVarNames.outCounter)
+        EnableHistoryCommand.Execute(urtVBFB, EnableHistoryCommandParams)
 
         Execute(urtVBFB, 1)
 
@@ -291,19 +291,19 @@ End Class
         Assert.AreEqual(1, history.CountTags())
     End Sub
 
-    <TestMethod()> Public Sub TestActionEnableHistoryFor1BoolArray()
+    <TestMethod()> Public Sub TestCommandEnableHistoryFor1BoolArray()
 
         Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
 
         Connect(urtVBFB)
 
-        Dim EnableHistoryAction As New RTAURTActionEnableHistory
+        Dim EnableHistoryCommand As New RTAURTCommandEnableHistory
         Dim history As RTAUrtTraceHistory = New RTAUrtTraceHistory
-        Dim EnableHistoryActionParams As New RTAURTActionEnableHistoryParameters(history)
+        Dim EnableHistoryCommandParams As New RTAURTCommandEnableHistoryParameters(history)
 
-        EnableHistoryActionParams.EnableHistoryFor(ScriptVarNames.inArrayBool)
-        EnableHistoryAction.Execute(urtVBFB, EnableHistoryActionParams)
+        EnableHistoryCommandParams.EnableHistoryFor(ScriptVarNames.inArrayBool)
+        EnableHistoryCommand.Execute(urtVBFB, EnableHistoryCommandParams)
 
         Execute(urtVBFB, 1)
 
@@ -311,21 +311,21 @@ End Class
         Assert.AreEqual(1, history.CountTags())
     End Sub
 
-    <TestMethod()> Public Sub TestActionEnableHistoryFor2Items2Executes()
+    <TestMethod()> Public Sub TestCommandEnableHistoryFor2Items2Executes()
 
         Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
 
         Connect(urtVBFB)
 
-        Dim EnableHistoryAction As New RTAURTActionEnableHistory
+        Dim EnableHistoryCommand As New RTAURTCommandEnableHistory
         Dim history As RTAUrtTraceHistory = New RTAUrtTraceHistory
-        Dim EnableHistoryActionParams As New RTAURTActionEnableHistoryParameters(history)
+        Dim EnableHistoryCommandParams As New RTAURTCommandEnableHistoryParameters(history)
 
-        EnableHistoryActionParams.EnableHistoryFor(ScriptVarNames.inArrayBool)
-        EnableHistoryActionParams.EnableHistoryFor(ScriptVarNames.outCounter)
-        EnableHistoryActionParams.EnableHistoryFor(ScriptVarNames.inArrayFloat)
-        EnableHistoryAction.Execute(urtVBFB, EnableHistoryActionParams)
+        EnableHistoryCommandParams.EnableHistoryFor(ScriptVarNames.inArrayBool)
+        EnableHistoryCommandParams.EnableHistoryFor(ScriptVarNames.outCounter)
+        EnableHistoryCommandParams.EnableHistoryFor(ScriptVarNames.inArrayFloat)
+        EnableHistoryCommand.Execute(urtVBFB, EnableHistoryCommandParams)
 
         Execute(urtVBFB, 2)
 
@@ -333,7 +333,7 @@ End Class
         Assert.AreEqual(3, history.CountTags())
     End Sub
 
-    <TestMethod()> Public Sub TestActionMessageCommandWrite1Message()
+    <TestMethod()> Public Sub TestCommandMessageCommandWrite1Message()
 
         Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
@@ -341,32 +341,32 @@ End Class
         Connect(urtVBFB)
 
         Dim testMsg As String = "This is a test Message"
-        Dim MessageActionParams = New RTAURTActionMessageParameters(testMsg)
+        Dim MessageCommandParams = New RTAURTCommandMessageParameters(testMsg)
 
-        MessageActionParams.GetCommand.Execute(urtVBFB, MessageActionParams)
+        MessageCommandParams.GetCommand.Execute(urtVBFB, MessageCommandParams)
 
         Assert.AreEqual(1, logger.Count)
         Assert.AreEqual(testMsg, logger.GetLastMessage)
     End Sub
 
-    <TestMethod()> Public Sub TestActionClearLogsClearsOnlyMessages()
+    <TestMethod()> Public Sub TestCommandClearLogsClearsOnlyMessages()
 
         Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
 
         Connect(urtVBFB)
 
-        Dim EnableHistoryAction As New RTAURTActionEnableHistory
+        Dim EnableHistoryCommand As New RTAURTCommandEnableHistory
         Dim history As RTAUrtTraceHistory = New RTAUrtTraceHistory
-        Dim EnableHistoryActionParams As New RTAURTActionEnableHistoryParameters(history)
-        EnableHistoryActionParams.EnableHistoryFor(ScriptVarNames.inArrayFloat)
-        EnableHistoryAction.Execute(urtVBFB, EnableHistoryActionParams)
+        Dim EnableHistoryCommandParams As New RTAURTCommandEnableHistoryParameters(history)
+        EnableHistoryCommandParams.EnableHistoryFor(ScriptVarNames.inArrayFloat)
+        EnableHistoryCommand.Execute(urtVBFB, EnableHistoryCommandParams)
 
         Dim testMsg As String = "Test Message from CommandMessage"
-        Dim MessageAction As New RTAURTActionMessage
-        Dim MessageActionParams As New RTAURTActionMessageParameters(testMsg)
+        Dim MessageCommand As New RTAURTCommandMessage
+        Dim MessageCommandParams As New RTAURTCommandMessageParameters(testMsg)
 
-        MessageAction.Execute(urtVBFB, MessageActionParams)
+        MessageCommand.Execute(urtVBFB, MessageCommandParams)
 
         Assert.AreEqual(1, logger.Count)
         Assert.AreEqual(testMsg, logger.GetLastMessage)
@@ -375,31 +375,31 @@ End Class
         Assert.AreEqual(1, logger.Count)
         Assert.AreEqual(2, history.CountTimeStamps())
 
-        Dim ClearLogAction As New RTAURTActionClearLogs
-        Dim ClearMessageLogActionParams As New RTAURTActionClearLogsParameters(RTAURTActionClearLogs.Logs.MessageLog)
-        ClearLogAction.Execute(urtVBFB, ClearMessageLogActionParams)
+        Dim ClearLogCommand As New RTAURTCommandClearLogs
+        Dim ClearMessageLogCommandParams As New RTAURTCommandClearLogsParameters(RTAURTCommandClearLogs.Logs.MessageLog)
+        ClearLogCommand.Execute(urtVBFB, ClearMessageLogCommandParams)
         Assert.AreEqual(0, logger.Count)
         Assert.AreEqual(2, history.CountTimeStamps())
     End Sub
 
-    <TestMethod()> Public Sub TestActionClearLogsClearsOnlyHistory()
+    <TestMethod()> Public Sub TestCommandClearLogsClearsOnlyHistory()
 
         Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
 
         Connect(urtVBFB)
 
-        Dim EnableHistoryAction As New RTAURTActionEnableHistory
+        Dim EnableHistoryCommand As New RTAURTCommandEnableHistory
         Dim history As RTAUrtTraceHistory = New RTAUrtTraceHistory
-        Dim EnableHistoryActionParams As New RTAURTActionEnableHistoryParameters(history)
-        EnableHistoryActionParams.EnableHistoryFor(ScriptVarNames.inArrayFloat)
-        EnableHistoryAction.Execute(urtVBFB, EnableHistoryActionParams)
+        Dim EnableHistoryCommandParams As New RTAURTCommandEnableHistoryParameters(history)
+        EnableHistoryCommandParams.EnableHistoryFor(ScriptVarNames.inArrayFloat)
+        EnableHistoryCommand.Execute(urtVBFB, EnableHistoryCommandParams)
 
         Dim testMsg As String = "Test Message from CommandMessage"
-        Dim MessageAction As New RTAURTActionMessage
-        Dim MessageActionParams As New RTAURTActionMessageParameters(testMsg)
+        Dim MessageCommand As New RTAURTCommandMessage
+        Dim MessageCommandParams As New RTAURTCommandMessageParameters(testMsg)
 
-        MessageAction.Execute(urtVBFB, MessageActionParams)
+        MessageCommand.Execute(urtVBFB, MessageCommandParams)
 
         Assert.AreEqual(1, logger.Count)
         Assert.AreEqual(testMsg, logger.GetLastMessage)
@@ -408,31 +408,31 @@ End Class
         Assert.AreEqual(1, logger.Count)
         Assert.AreEqual(2, history.CountTimeStamps())
 
-        Dim ClearLogAction As New RTAURTActionClearLogs
-        Dim ClearMessageLogActionParams As New RTAURTActionClearLogsParameters(RTAURTActionClearLogs.Logs.HistoryLog)
-        ClearLogAction.Execute(urtVBFB, ClearMessageLogActionParams)
+        Dim ClearLogCommand As New RTAURTCommandClearLogs
+        Dim ClearMessageLogCommandParams As New RTAURTCommandClearLogsParameters(RTAURTCommandClearLogs.Logs.HistoryLog)
+        ClearLogCommand.Execute(urtVBFB, ClearMessageLogCommandParams)
         Assert.AreEqual(1, logger.Count)
         Assert.AreEqual(0, history.CountTimeStamps())
     End Sub
 
-    <TestMethod()> Public Sub TestActionClearLogsClearsMessageAndHistory()
+    <TestMethod()> Public Sub TestCommandClearLogsClearsMessageAndHistory()
 
         Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
         Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
 
         Connect(urtVBFB)
 
-        Dim EnableHistoryAction As New RTAURTActionEnableHistory
+        Dim EnableHistoryCommand As New RTAURTCommandEnableHistory
         Dim history As RTAUrtTraceHistory = New RTAUrtTraceHistory
-        Dim EnableHistoryActionParams As New RTAURTActionEnableHistoryParameters(history)
-        EnableHistoryActionParams.EnableHistoryFor(ScriptVarNames.inArrayFloat)
-        EnableHistoryAction.Execute(urtVBFB, EnableHistoryActionParams)
+        Dim EnableHistoryCommandParams As New RTAURTCommandEnableHistoryParameters(history)
+        EnableHistoryCommandParams.EnableHistoryFor(ScriptVarNames.inArrayFloat)
+        EnableHistoryCommand.Execute(urtVBFB, EnableHistoryCommandParams)
 
         Dim testMsg As String = "Test Message from CommandMessage"
-        Dim MessageAction As New RTAURTActionMessage
-        Dim MessageActionParams As New RTAURTActionMessageParameters(testMsg)
+        Dim MessageCommand As New RTAURTCommandMessage
+        Dim MessageCommandParams As New RTAURTCommandMessageParameters(testMsg)
 
-        MessageAction.Execute(urtVBFB, MessageActionParams)
+        MessageCommand.Execute(urtVBFB, MessageCommandParams)
 
         Assert.AreEqual(1, logger.Count)
         Assert.AreEqual(testMsg, logger.GetLastMessage)
@@ -441,9 +441,9 @@ End Class
         Assert.AreEqual(1, logger.Count)
         Assert.AreEqual(2, history.CountTimeStamps())
 
-        Dim ClearLogAction As New RTAURTActionClearLogs
-        Dim ClearMessageLogActionParams As New RTAURTActionClearLogsParameters(RTAURTActionClearLogs.Logs.MessageAndHistory)
-        ClearLogAction.Execute(urtVBFB, ClearMessageLogActionParams)
+        Dim ClearLogCommand As New RTAURTCommandClearLogs
+        Dim ClearMessageLogCommandParams As New RTAURTCommandClearLogsParameters(RTAURTCommandClearLogs.Logs.MessageAndHistory)
+        ClearLogCommand.Execute(urtVBFB, ClearMessageLogCommandParams)
         Assert.AreEqual(0, logger.Count)
         Assert.AreEqual(0, history.CountTimeStamps())
     End Sub
