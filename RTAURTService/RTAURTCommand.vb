@@ -98,16 +98,13 @@ End Class
 
 Public Class CommandCallbacks
     Private Shared _Stop As ICommandCallback
-    Public Shared Property [Stop] As ICommandCallback
+    Public Shared ReadOnly Property [Stop] As ICommandCallback
         Get
             If _Stop Is Nothing Then
                 _Stop = New StopCallback
             End If
             Return _Stop
         End Get
-        Set(value As ICommandCallback)
-
-        End Set
     End Property
 
     Private Shared _Continue As ICommandCallback
@@ -121,6 +118,12 @@ Public Class CommandCallbacks
         Set(value As ICommandCallback)
 
         End Set
+    End Property
+
+    Public Shared ReadOnly Property LimitCommandCallsTo(commandCallLimit As Integer) As ICommandCallback
+        Get
+            Return New LimitCallbackCount(commandCallLimit)
+        End Get
     End Property
 
     Private Class StopCallback
@@ -141,6 +144,23 @@ Public Class CommandCallbacks
 
     End Class
 
+    Private Class LimitCallbackCount
+        Implements ICommandCallback
+
+        Private _limit As Integer
+        Private _counter As Integer
+        Public Sub New(limit As Integer)
+            If limit < 0 Then limit = 0
+            _limit = limit
+            _counter = 0
+        End Sub
+
+        Public Function CanContinue() As Boolean Implements ICommandCallback.CanContinue
+            _counter += 1
+            Return _counter <= _limit
+        End Function
+
+    End Class
     Friend Shared Function GetSafeCallbackAndCheckforStop(callback As ICommandCallback) As Boolean
         If callback IsNot Nothing Then Return Not callback.CanContinue
         callback = CommandCallbacks.Continue
