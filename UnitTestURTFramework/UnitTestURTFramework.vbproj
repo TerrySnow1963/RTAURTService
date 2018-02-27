@@ -82,8 +82,9 @@
     <Import Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UnitTestCommandCallBacks.vb" />
     <Compile Include="UnitTestSequences.vb" />
-    <Compile Include="UnitTestActions.vb" />
+    <Compile Include="UnitTestCommands.vb" />
     <Compile Include="UnitTestTreeElement.vb" />
     <Compile Include="UnitTestMessages.vb" />
     <Compile Include="UnitTestConData.vb" />

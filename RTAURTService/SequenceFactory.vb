@@ -21,7 +21,10 @@ End Class
 Public Class RTAURTCommandSequence
     Implements RTAURTCommand
 
-    Public Sub Execute(vbfb As URTVBFunctionBlock, ByRef params As RTAURTCommandParameters) Implements RTAURTCommand.Execute
+    Public Function Execute(vbfb As URTVBFunctionBlock,
+                            ByVal params As RTAURTCommandParameters,
+                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
+        If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return CommandResults.Stopped
 
         Dim seqParams As RTAURTCommandSequenceParameters
 
@@ -30,7 +33,7 @@ Public Class RTAURTCommandSequence
             If Not seqParams Is Nothing Then
                 'ToDo need to check for recursion
                 For Each cmdParams In seqParams.GetCommandList
-                    cmdParams.GetCommand.Execute(vbfb, cmdParams)
+                    cmdParams.GetCommand.Execute(vbfb, cmdParams, callback)
                 Next
                 If seqParams.GetCommandList.Count = 0 Then
                     RaiseMessage.Raise(vbfb, RTAURTCommandErrorMessages.SequenceErrorNoCommands)
@@ -40,7 +43,8 @@ Public Class RTAURTCommandSequence
             End If
         End If
 
-    End Sub
+        Return CommandResults.Done
+    End Function
 End Class
 
 Public Class RTAURTCommandSequenceParameters
