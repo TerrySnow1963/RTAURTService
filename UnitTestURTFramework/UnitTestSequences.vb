@@ -19,6 +19,20 @@ Imports RTAURTService
         Assert.IsNotNull(_seqParams)
     End Sub
 
+    Private Function MakeLoadedTestSequence1() As RTAURTCommandSequenceParameters
+        InitSequenceWithLogger()
+
+        Dim testMsg As String = "This is a test"
+        Dim MessageCommandParams = New RTAURTCommandMessageParameters(testMsg)
+
+        Dim testMsg2 As String = "This is a 2nd test"
+        Dim MessageCommandParams2 = New RTAURTCommandMessageParameters(testMsg2)
+        _seqParams.AddCommandParameters(MessageCommandParams)
+        _seqParams.AddCommandParameters(MessageCommandParams2)
+
+        Return _seqParams
+    End Function
+
     <TestMethod()> Public Sub TestSequenceFactoryMakesSequenceParams()
         InitSequenceWithLogger()
     End Sub
@@ -46,29 +60,29 @@ Imports RTAURTService
         Assert.AreEqual(testMsg, _logger.GetLastMessage)
     End Sub
 
-    <TestMethod()> Public Sub TestSequenceBreaksAtSomeRecursionLevel()
-        InitSequenceWithLogger()
+    <TestMethod()> Public Sub TestLinkedSequence()
+        Dim seqParams As RTAURTCommandSequenceParameters = MakeLoadedTestSequence1()
 
-        Dim seq As RTAURTCommandSequence = New RTAURTCommandSequence
+        Dim LinkToSeqParams As RTAURTCommandLinkedSequenceParameters = New RTAURTCommandLinkedSequenceParameters(seqParams.Name)
 
-        Dim testMsg As String = "This is a test"
-        Dim MessageCommandParams = New RTAURTCommandMessageParameters(testMsg)
-
-        Dim testMsg2 As String = "This is a 2nd test"
-        Dim MessageCommandParams2 = New RTAURTCommandMessageParameters(testMsg2)
-        _seqParams.AddCommandParameters(MessageCommandParams)
-        _seqParams.AddCommandParameters(MessageCommandParams2)
-        seq.Execute(_urtVBFB, CType(_seqParams, RTAURTCommandParameters))
+        Dim cmdResult As ICommandResult
+        cmdResult = seqParams.GetCommand.Execute(_urtVBFB, CType(_seqParams, RTAURTCommandParameters))
         Assert.AreEqual(2, _logger.Count)
-        Assert.AreEqual(testMsg2, _logger.GetLastMessage)
     End Sub
 
-    <TestMethod()> Public Sub TestSequenceExecuteWith2MessageCommandsMakes2Message()
-        InitSequenceWithLogger()
 
-        Dim seq As RTAURTCommandSequence = New RTAURTCommandSequence
 
-        Assert.AreEqual("Need To", " Test for recursive calls.")
+    <TestMethod()> Public Sub TestLinkedSequenceRecursiveCall()
+        Dim seqParams As RTAURTCommandSequenceParameters = MakeLoadedTestSequence1()
+
+        Dim LinkToSeqParams As RTAURTCommandLinkedSequenceParameters = New RTAURTCommandLinkedSequenceParameters(_seqParams.Name)
+        _seqParams.AddCommandParameters(LinkToSeqParams)
+
+        Dim cmdResult As ICommandResult
+        'Dim callback As ICommandCallback = CommandCallbacks.LimitRecursionTo(20)
+        Dim callback As ICommandCallback = CommandCallbacks.LimitCommandCallsTo(20)
+        cmdResult = _seqParams.GetCommand.Execute(_urtVBFB, CType(_seqParams, RTAURTCommandParameters), callback)
+        Assert.AreEqual(2, _logger.Count)
     End Sub
 
 End Class

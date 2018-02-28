@@ -39,8 +39,8 @@ End Class
         Dim ConnectCommand As New RTAURTCommandConnect
         Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
 
-        Dim ExecuteCommand As New RTAURTCommandExecute
-        Dim ExecuteCommandParams As New RTAURTCommandExecuteParameters()
+        Dim ExecuteCommand As New RTAURTCommandExecuteVB
+        Dim ExecuteCommandParams As New RTAURTCommandExecuteVBParameters()
 
         Dim cmdResult As ICommandResult = ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
 
@@ -60,8 +60,8 @@ End Class
         Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
 
         Dim NumberOfExecutes As Integer = 5
-        Dim ExecuteCommand As New RTAURTCommandExecute()
-        Dim ExecuteCommandParams As New RTAURTCommandExecuteParameters(NumberOfExecutes)
+        Dim ExecuteCommand As New RTAURTCommandExecuteVB()
+        Dim ExecuteCommandParams As New RTAURTCommandExecuteVBParameters(NumberOfExecutes)
 
         Dim cmdResult As ICommandResult
 
@@ -88,8 +88,8 @@ End Class
         Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
 
         Dim NumberOfExecutes As Integer = 3
-        Dim ExecuteCommand As New RTAURTCommandExecute()
-        Dim ExecuteCommandParams As New RTAURTCommandExecuteParameters(NumberOfExecutes)
+        Dim ExecuteCommand As New RTAURTCommandExecuteVB()
+        Dim ExecuteCommandParams As New RTAURTCommandExecuteVBParameters(NumberOfExecutes)
 
         Dim cmdResult As ICommandResult
 
@@ -122,8 +122,8 @@ End Class
         Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
 
         Dim NumberOfExecutes As Integer = 3
-        Dim ExecuteCommand As New RTAURTCommandExecute()
-        Dim ExecuteCommandParams As New RTAURTCommandExecuteParameters(NumberOfExecutes)
+        Dim ExecuteCommand As New RTAURTCommandExecuteVB()
+        Dim ExecuteCommandParams As New RTAURTCommandExecuteVBParameters(NumberOfExecutes)
 
         ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
 
@@ -277,8 +277,8 @@ End Class
         cmdResult = SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
         Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
 
-        Dim ExecuteCommand As New RTAURTCommandExecute()
-        Dim ExecuteCommandParams As New RTAURTCommandExecuteParameters()
+        Dim ExecuteCommand As New RTAURTCommandExecuteVB()
+        Dim ExecuteCommandParams As New RTAURTCommandExecuteVBParameters()
         Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
 
 
@@ -296,8 +296,8 @@ End Class
     End Sub
 
     Private Sub Execute(ByVal urtVBFB As URTVBQALSimpleScript.URTVBQALSimpleScript, ByVal numberOfExecutions As Integer)
-        Dim ExecuteCommand As New RTAURTCommandExecute()
-        Dim ExecuteCommandParams As New RTAURTCommandExecuteParameters(numberOfExecutions)
+        Dim ExecuteCommand As New RTAURTCommandExecuteVB()
+        Dim ExecuteCommandParams As New RTAURTCommandExecuteVBParameters(numberOfExecutions)
         Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
         Dim cmdResult As ICommandResult
         cmdResult = ExecuteCommand.Execute(urtVBFB, ExecuteCommandParams)
