@@ -4,10 +4,16 @@ Imports UrtTlbLib
 Imports RTAInterfaces
 Imports URT
 
+Public Interface ICommandContext
+    ReadOnly Property cmdExec As CommandExecutive
+    ReadOnly Property params As IRTAURTCommandParameters
+End Interface
+
 Public Interface RTAURTCommand
     Function Execute(ByVal vbfb As URTVBFunctionBlock,
                      ByVal params As IRTAURTCommandParameters,
                      Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult
+    Function Execute(ByVal context As ICommandContext) As ICommandResult
 End Interface
 
 Public Interface IRTAURTCommandParameters
@@ -111,7 +117,7 @@ Public Class CommandCallbacks
     Public Shared Property [Continue] As ICommandCallback
         Get
             If _Continue Is Nothing Then
-                _Continue = New StopCallback
+                _Continue = New ContinueCallback
             End If
             Return _Continue
         End Get
@@ -139,7 +145,7 @@ Public Class CommandCallbacks
         Implements ICommandCallback
 
         Public Function CanContinue() As Boolean Implements ICommandCallback.CanContinue
-            Return False
+            Return True
         End Function
 
     End Class
@@ -223,6 +229,10 @@ End Class
 Public Class RTAURTCommandConnect
     Implements RTAURTCommand
 
+    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+        Throw New NotImplementedException()
+    End Function
+
     Public Function Execute(vbfb As URTVBFunctionBlock,
                             ByVal params As IRTAURTCommandParameters,
                             Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
@@ -254,6 +264,10 @@ End Class
 Public Class RTAURTCommandEnableHistory
     Implements RTAURTCommand
 
+    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+        Throw New NotImplementedException()
+    End Function
+
     Public Function Execute(vbfb As URTVBFunctionBlock,
                             ByVal params As IRTAURTCommandParameters,
                             Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
@@ -283,6 +297,10 @@ End Class
 
 Public Class RTAURTCommandExecuteVB
     Implements RTAURTCommand
+
+    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+        Throw New NotImplementedException()
+    End Function
 
     Public Function Execute(vbfb As URTVBFunctionBlock,
                             ByVal params As IRTAURTCommandParameters,
@@ -400,10 +418,18 @@ Public Class RTAURTCommandSetValues
 
         Return result
     End Function
+
+    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+        Throw New NotImplementedException()
+    End Function
 End Class
 
 Public Class RTAURTCommandMessage
     Implements RTAURTCommand
+
+    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+        Throw New NotImplementedException()
+    End Function
 
     Public Function Execute(vbfb As URTVBFunctionBlock,
                             ByVal params As IRTAURTCommandParameters,
@@ -464,6 +490,10 @@ Public Class RTAURTCommandClearLogs
             End If
         End If
         Return ICommandResults.Done
+    End Function
+
+    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+        Throw New NotImplementedException()
     End Function
 End Class
 

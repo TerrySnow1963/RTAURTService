@@ -12,21 +12,22 @@ Public Class CommandExecutive
     End Sub
     Public Sub New(vb As URTVBFunctionBlock)
         _vbfb = vb
+        'Todo add callback as argument to Sub New
         _callback = CommandCallbacks.LimitCommandCallsTo(100)
         _TotalCommandsExecuted = 0
     End Sub
 
-    Private Sub PreMessageProcess()
+    Private Sub PreProcessCommand()
 
     End Sub
-    Private Sub PostMessageProcess()
+    Private Sub PostProcessCommand()
         _TotalCommandsExecuted += 1
     End Sub
     Public Function Invoke(Of T As IRTAURTCommandParameters)(param As T) As ICommandResult
         Dim cmdResult As ICommandResult
-        PreMessageProcess()
+        PreProcessCommand()
         cmdResult = param.GetCommand.Execute(_vbfb, param, Me)
-        PostMessageProcess()
+        PostProcessCommand()
         Return cmdResult
     End Function
 

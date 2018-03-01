@@ -82,7 +82,7 @@ Imports RTAURTService
         'Dim callback As ICommandCallback = CommandCallbacks.LimitRecursionTo(20)
         Dim callback As ICommandCallback = CommandCallbacks.LimitCommandCallsTo(20)
         cmdResult = _seqParams.GetCommand.Execute(_urtVBFB, CType(_seqParams, RTAURTCommandParameters), callback)
-        Assert.AreEqual(2, _logger.Count)
+        Assert.AreEqual(CInt(20 / 2), _logger.Count)
     End Sub
 
 End Class

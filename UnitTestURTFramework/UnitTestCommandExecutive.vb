@@ -50,14 +50,25 @@ Imports URTVBQALSimpleScript
         cmdExec.Invoke(params)
 
         Assert.AreEqual(1, cmdExec.TotalCommandsExecuted)
-
     End Sub
+
     <TestMethod()> Public Sub TestCEInvokesExecuteVBCmd()
         Dim cmdExec = New CommandExecutive(_vbfb)
         Dim params = New RTAURTCommandExecuteVBParameters()
         cmdExec.Invoke(params)
 
         Assert.AreEqual(1, cmdExec.TotalCommandsExecuted)
+    End Sub
 
+    <TestMethod()> Public Sub TestCEInvokesSetValuesCmd()
+        Dim cmdExec = New CommandExecutive(_vbfb)
+        Dim conParams = New RTAURTCommandConnectParameters(True)
+        cmdExec.Invoke(conParams)
+
+        Dim svParams = New RTAURTCommandSetValuesParameters()
+        svParams.AddValue("outCounter", 10)
+        cmdExec.Invoke(svParams)
+
+        Assert.AreEqual(2, cmdExec.TotalCommandsExecuted)
     End Sub
 End Class

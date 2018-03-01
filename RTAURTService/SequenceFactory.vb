@@ -37,6 +37,10 @@ End Class
 Public Class RTAURTCommandSequence
     Implements RTAURTCommand
 
+    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+        Throw New NotImplementedException()
+    End Function
+
     Public Function Execute(vbfb As URTVBFunctionBlock,
                             ByVal params As IRTAURTCommandParameters,
                             Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
@@ -100,6 +104,10 @@ End Class
 
 Public Class RTAURTCommandLinkedSequence
     Implements RTAURTCommand
+
+    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+        Throw New NotImplementedException()
+    End Function
 
     Public Function Execute(vbfb As URTVBFunctionBlock,
                             ByVal params As IRTAURTCommandParameters,
