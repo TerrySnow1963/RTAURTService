@@ -149,6 +149,7 @@ Public MustInherit Class CUrtFBBase
     End Sub
 
     Public Function GetElement(v As String) As IUrtData
+        If String.IsNullOrEmpty(v) Then Return Nothing
         For Each e In _childElements
             If CType(e, IRTAUrtData).Name = v Then Return e
         Next

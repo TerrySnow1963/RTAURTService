@@ -20,134 +20,122 @@ End Class
 
 <TestClass()> Public Class UnitTestCommands
     Private Const _NUM_SCRIPT_PARAMS As Integer = 8
-    <TestMethod()> Public Sub TestCommandConnect()
-        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
 
-        Dim ConnectCommand As New RTAURTCommandConnect
-        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
+    Private Function TestCommandIsDone(params As IRTAURTCommandParameters, Optional cmdExec As CommandExecutive = Nothing) As CommandExecutive
 
-        Dim cmdResult As ICommandResult = ConnectCommand.Execute(urtVBFB, ConnectCommandParams, CommandCallbacks.Continue)
+        If cmdExec Is Nothing Then
+            Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(New RTAUrtTraceLogger)
+            cmdExec = New CommandExecutive(urtVBFB)
+        End If
 
-        Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
-        Assert.AreEqual(1, urtVBFB.NumberOfConnectionsExecutions)
+        Dim cmdResult As ICommandResult = cmdExec.Invoke(params)
         Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
+        Return cmdExec
+    End Function
+
+    Private Function TestCommandHasError(params As IRTAURTCommandParameters, expectedErrMsg As String, Optional cmdExec As CommandExecutive = Nothing) As CommandExecutive
+
+        If cmdExec Is Nothing Then
+            Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(New RTAUrtTraceLogger)
+            cmdExec = New CommandExecutive(urtVBFB)
+        End If
+
+        Dim cmdResult As ICommandResult = cmdExec.Invoke(params)
+        Assert.AreEqual(RTAURTCommandResultCode.CMD_ERROR, cmdResult.GetResultCode)
+        Assert.AreEqual(1, cmdExec.vbfb.GetLogMessageCount)
+        Assert.AreEqual(expectedErrMsg, cmdExec.vbfb.GetLastLogMessage)
+        Return cmdExec
+    End Function
+
+    Private Sub TestEndOfExecuteVBRun(cmdExec As CommandExecutive, numberOfExecutesExpected As Integer)
+        Trace.WriteLine("Started TestEndOfExecuteVBRun")
+        Trace.WriteLine("Testing Number of ExecuteVB Calls")
+        Assert.AreEqual(numberOfExecutesExpected, cmdExec.vbfb.NumberOfExecuteExecutions)
+        Trace.WriteLine("Testing Number of Connection Calls")
+        Assert.AreEqual(1, cmdExec.vbfb.NumberOfConnectionsExecutions)
+        Trace.WriteLine("Finished TestEndOfExecuteVBRun")
+    End Sub
+
+    Private Function StartWithCommandConnect() As CommandExecutive
+        Dim params As New RTAURTCommandConnectParameters(True)
+        Dim cmdExec As CommandExecutive = TestCommandIsDone(params)
+
+        Trace.WriteLine("Started StartWithCommandConnect")
+        Assert.AreEqual(_NUM_SCRIPT_PARAMS, cmdExec.vbfb.GetElements.Count)
+        Trace.WriteLine("Finished StartWithCommandConnect")
+        Return cmdExec
+    End Function
+
+    <TestMethod()> Public Sub TestCommandConnect()
+        StartWithCommandConnect()
     End Sub
 
     <TestMethod()> Public Sub TestCommandConnectAnd1Execute()
-        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
-
-        Dim ConnectCommand As New RTAURTCommandConnect
-        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
-
-        Dim ExecuteCommand As New RTAURTCommandExecuteVB
+        Dim cmdExec As CommandExecutive = StartWithCommandConnect()
         Dim ExecuteCommandParams As New RTAURTCommandExecuteVBParameters()
 
-        Dim cmdResult As ICommandResult = ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
+        TestCommandIsDone(ExecuteCommandParams, cmdExec)
 
-        Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
-
-        cmdResult = ExecuteCommand.Execute(urtVBFB, ExecuteCommandParams, CommandCallbacks.Continue)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
-
-        Assert.AreEqual(1, urtVBFB.NumberOfExecuteExecutions)
+        TestEndOfExecuteVBRun(cmdExec, 1)
     End Sub
 
     <TestMethod()> Public Sub TestCommandConnectAnd5Executes()
-        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
-
-        Dim ConnectCommand As New RTAURTCommandConnect
-        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
+        Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
         Dim NumberOfExecutes As Integer = 5
-        Dim ExecuteCommand As New RTAURTCommandExecuteVB()
         Dim ExecuteCommandParams As New RTAURTCommandExecuteVBParameters(NumberOfExecutes)
 
-        Dim cmdResult As ICommandResult
-
-        cmdResult = ConnectCommand.Execute(urtVBFB, ConnectCommandParams, CommandCallbacks.Continue)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
-
-        Dim outCounter As ConInt = urtVBFB.GetElement(ScriptVarNames.outCounter)
+        Dim outCounter As ConInt = cmdExec.vbfb.GetElement(ScriptVarNames.outCounter)
         Dim InitCounterVal As Integer = 3
         outCounter.Val = InitCounterVal
 
-        Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
-        cmdResult = ExecuteCommand.Execute(urtVBFB, ExecuteCommandParams)
+        TestCommandIsDone(ExecuteCommandParams, cmdExec)
 
-        Assert.AreEqual(NumberOfExecutes, urtVBFB.NumberOfExecuteExecutions)
-        Assert.AreEqual(1, urtVBFB.NumberOfConnectionsExecutions)
+        TestEndOfExecuteVBRun(cmdExec, NumberOfExecutes)
         Assert.AreEqual(NumberOfExecutes + InitCounterVal, outCounter.Val)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
     End Sub
 
     <TestMethod()> Public Sub TestCommandSetValuesFor1IntValue()
-        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
-
-        Dim ConnectCommand As New RTAURTCommandConnect
-        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
+        Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
         Dim NumberOfExecutes As Integer = 3
-        Dim ExecuteCommand As New RTAURTCommandExecuteVB()
-        Dim ExecuteCommandParams As New RTAURTCommandExecuteVBParameters(NumberOfExecutes)
+        Dim ExecuteVBCommandParams As New RTAURTCommandExecuteVBParameters(NumberOfExecutes)
 
-        Dim cmdResult As ICommandResult
-
-        cmdResult = ConnectCommand.Execute(urtVBFB, ConnectCommandParams, CommandCallbacks.Continue)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
-
-        Dim outCounter As ConInt = urtVBFB.GetElement(ScriptVarNames.outCounter)
+        Dim outCounter As ConInt = cmdExec.vbfb.GetElement(ScriptVarNames.outCounter)
         Dim InitCounterVal As Integer = 7
 
-        Dim SetValuesCommand As New RTAURTCommandSetValues()
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
         SetValuesCommandParams.AddValue("outCounter", InitCounterVal)
 
-        cmdResult = SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams, CommandCallbacks.Continue)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
+        TestCommandIsDone(SetValuesCommandParams, cmdExec)
+        TestCommandIsDone(ExecuteVBCommandParams, cmdExec)
 
-        Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
-        cmdResult = ExecuteCommand.Execute(urtVBFB, ExecuteCommandParams)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
-
-        Assert.AreEqual(NumberOfExecutes, urtVBFB.NumberOfExecuteExecutions)
-        Assert.AreEqual(1, urtVBFB.NumberOfConnectionsExecutions)
+        TestEndOfExecuteVBRun(cmdExec, NumberOfExecutes)
         Assert.AreEqual(InitCounterVal + NumberOfExecutes, outCounter.Val)
     End Sub
 
     <TestMethod()> Public Sub TestCommandSetValuesFor2ValuesIntAndBool()
-        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
-
-        Dim ConnectCommand As New RTAURTCommandConnect
-        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
+        Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
         Dim NumberOfExecutes As Integer = 3
-        Dim ExecuteCommand As New RTAURTCommandExecuteVB()
-        Dim ExecuteCommandParams As New RTAURTCommandExecuteVBParameters(NumberOfExecutes)
+        Dim ExecuteVBCommandParams As New RTAURTCommandExecuteVBParameters(NumberOfExecutes)
 
-        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
-
-        Dim outCounter As ConInt = urtVBFB.GetElement(ScriptVarNames.outCounter)
+        Dim outCounter As ConInt = cmdExec.vbfb.GetElement(ScriptVarNames.outCounter)
         Dim InitCounterVal As Integer = 7
 
-        Dim SetValuesCommand As New RTAURTCommandSetValues()
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
         SetValuesCommandParams.AddValue(ScriptVarNames.outCounter, InitCounterVal)
         SetValuesCommandParams.AddValue(ScriptVarNames.inUseUpCounter, False)
 
-        SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams, CommandCallbacks.Continue)
+        TestCommandIsDone(SetValuesCommandParams, cmdExec)
+        TestCommandIsDone(ExecuteVBCommandParams, cmdExec)
+        TestEndOfExecuteVBRun(cmdExec, NumberOfExecutes)
 
-        Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
-        ExecuteCommand.Execute(urtVBFB, ExecuteCommandParams, CommandCallbacks.Continue)
-
-        Assert.AreEqual(NumberOfExecutes, urtVBFB.NumberOfExecuteExecutions)
-        Assert.AreEqual(1, urtVBFB.NumberOfConnectionsExecutions)
         Assert.AreEqual(InitCounterVal - NumberOfExecutes, outCounter.Val)
     End Sub
 
-    <TestMethod()> Public Sub TestCommandSetValuesForNothingNameRaisesMessage()
-        Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
-        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
+    <TestMethod()> Public Sub TestCommandSetValuesWithNoConnectForNothingNameRaisesMessage()
+        'Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
         Dim newElementValue As Single = 10.3!
 
@@ -155,135 +143,70 @@ End Class
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
         SetValuesCommandParams.AddValue(Nothing, newElementValue)
 
-        Dim cmdResult As ICommandResult
-
-        cmdResult = SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams, CommandCallbacks.Continue)
-
-        Assert.AreEqual(1, logger.Count)
-        Assert.AreEqual(SetValuesCommand.ErrorMessages.CantFindElement, logger.GetLastMessage)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_ERROR, cmdResult.GetResultCode)
-
+        TestCommandHasError(SetValuesCommandParams, SetValuesCommand.ErrorMessages.CantFindElement)
+        'TestEndOfExecuteVBRun(cmdExec, 0)
     End Sub
 
     <TestMethod()> Public Sub TestCommandSetValuesForNothingNameRaisesMessageAfterConnect()
-        Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
-        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
-
-        Dim ConnectCommand As New RTAURTCommandConnect
-        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
-        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
+        Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
         Dim newElementValue As Single = 10.3!
-
         Dim SetValuesCommand As New RTAURTCommandSetValues()
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
         SetValuesCommandParams.AddValue(Nothing, newElementValue)
 
-        Dim cmdResult As ICommandResult
-        cmdResult = SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
-
-        Assert.AreEqual(1, logger.Count)
-        Assert.AreEqual(SetValuesCommand.ErrorMessages.CantFindElement, logger.GetLastMessage)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_ERROR, cmdResult.GetResultCode)
+        TestCommandHasError(SetValuesCommandParams, SetValuesCommand.ErrorMessages.CantFindElement)
 
     End Sub
 
     <TestMethod()> Public Sub TestCommandSetValuesForUnknownNameRaisesMessageAfterConnect()
-        Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
-        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
-
-        Dim ConnectCommand As New RTAURTCommandConnect
-        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
-        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
+        Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
         Dim newElementValue As Single = 10.3!
-
         Dim SetValuesCommand As New RTAURTCommandSetValues()
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
+        SetValuesCommandParams.AddValue(Nothing, newElementValue)
         SetValuesCommandParams.AddValue("Does not exist", newElementValue)
 
-        Dim cmdResult As ICommandResult
-        cmdResult = SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
-
-        Assert.AreEqual(1, logger.Count)
-        Assert.AreEqual(SetValuesCommand.ErrorMessages.CantFindElement, logger.GetLastMessage)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_ERROR, cmdResult.GetResultCode)
+        TestCommandHasError(SetValuesCommandParams, RTAURTCommandSetValues.ErrorMessages.CantFindElement)
 
     End Sub
 
     <TestMethod()> Public Sub TestCommandSetValuesSingleWrongValueTypeGivesError()
-        Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
-        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
-
-        Dim ConnectCommand As New RTAURTCommandConnect
-        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
-        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
+        Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
         Dim newElementValue As String = "this cannot be a single"
-
         Dim SetValuesCommand As New RTAURTCommandSetValues()
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
         SetValuesCommandParams.AddValue(ScriptVarNames.inFloat1, newElementValue)
 
-        Dim cmdResult As ICommandResult
-        cmdResult = SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
-
-        Assert.AreEqual(1, logger.Count)
-        Assert.AreEqual(SetValuesCommand.ErrorMessages.ValueFailsToConvert, logger.GetLastMessage)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_ERROR, cmdResult.GetResultCode)
-
+        TestCommandHasError(SetValuesCommandParams, RTAURTCommandSetValues.ErrorMessages.ValueFailsToConvert, cmdExec)
     End Sub
 
     <TestMethod()> Public Sub TestCommandSetValuesSingleArrayWrongValueTypeGivesError()
-        Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
-        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
-
-        Dim ConnectCommand As New RTAURTCommandConnect
-        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
-        ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
+        Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
         Dim newElementValue As String = "this cannot be a single"
-
         Dim SetValuesCommand As New RTAURTCommandSetValues()
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
         SetValuesCommandParams.AddValue(ScriptVarNames.inArrayFloat, newElementValue, 0)
 
-        Dim cmdResult As ICommandResult
-        cmdResult = SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
-
-        Assert.AreEqual(1, logger.Count)
-        Assert.AreEqual(SetValuesCommand.ErrorMessages.ValueFailsToConvert, logger.GetLastMessage)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_ERROR, cmdResult.GetResultCode)
-
+        TestCommandHasError(SetValuesCommandParams, RTAURTCommandSetValues.ErrorMessages.ValueFailsToConvert, cmdExec)
     End Sub
 
     <TestMethod()> Public Sub TestCommandSetValuesFor1IntArrayValue()
-        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript
-        Dim cmdResult As ICommandResult
+        Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
-        Dim ConnectCommand As New RTAURTCommandConnect
-        Dim ConnectCommandParams As New RTAURTCommandConnectParameters(True)
-        cmdResult = ConnectCommand.Execute(urtVBFB, ConnectCommandParams)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
-
-        Dim OutFloat2 As ConFloat = urtVBFB.GetElement(ScriptVarNames.outFloat2)
+        Dim OutFloat2 As ConFloat = cmdExec.vbfb.GetElement(ScriptVarNames.outFloat2)
 
         Dim newElementValue As Single = 10.3!
-
-        Dim SetValuesCommand As New RTAURTCommandSetValues()
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
-        SetValuesCommandParams.AddValue(ScriptVarNames.inArrayFloat, newElementValue)
+        SetValuesCommandParams.AddValue(ScriptVarNames.inArrayFloat, newElementValue, 0)
 
-        cmdResult = SetValuesCommand.Execute(urtVBFB, SetValuesCommandParams)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
+        Dim ExecuteVBCommandParams As New RTAURTCommandExecuteVBParameters()
 
-        Dim ExecuteCommand As New RTAURTCommandExecuteVB()
-        Dim ExecuteCommandParams As New RTAURTCommandExecuteVBParameters()
-        Assert.AreEqual(_NUM_SCRIPT_PARAMS, urtVBFB.GetElements.Count)
-
-
-        cmdResult = ExecuteCommand.Execute(urtVBFB, ExecuteCommandParams)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
+        TestCommandIsDone(SetValuesCommandParams, cmdExec)
+        TestCommandIsDone(ExecuteVBCommandParams, cmdExec)
 
         Assert.AreEqual(newElementValue + 1.0! * 3.0!, OutFloat2.Val)
 

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<OrderedTest name="OrderedTestWithConnect" storage="c:\users\terry\documents\visual studio 2015\projects\rtaurtservice\unittesturtframework\orderedtestwithconnect.orderedtest" id="5de9655d-ddf9-4d80-a047-13750766d15d" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <TestLinks>
+    <TestLink id="11425385-ab9f-b984-218d-42f53c120506" name="TestCommandConnect" storage="bin\debug\unittesturtframework.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <TestLink id="0ec4d2af-018b-3ee4-aa55-4ffeb16e9b6b" name="TestCommandConnectAnd1Execute" storage="bin\debug\unittesturtframework.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <TestLink id="86b44365-45af-d573-db9f-7e4fc2108669" name="TestCommandConnectAnd5Executes" storage="bin\debug\unittesturtframework.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <TestLink id="ab7c0a81-67dd-009a-26bb-bc82aaa9d6ae" name="TestCommandSetValuesFor1IntValue" storage="bin\debug\unittesturtframework.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  </TestLinks>
+</OrderedTest>

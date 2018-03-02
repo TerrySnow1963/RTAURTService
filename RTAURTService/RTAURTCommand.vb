@@ -7,6 +7,7 @@ Imports URT
 Public Interface ICommandContext
     ReadOnly Property cmdExec As CommandExecutive
     ReadOnly Property params As IRTAURTCommandParameters
+    ReadOnly Property vbfb As URTVBFunctionBlock
 End Interface
 
 Public Interface RTAURTCommand
@@ -43,6 +44,12 @@ Public Class RaiseMessage
         msg.text = msgString
         vbfb.Raise(msg, 0)
     End Sub
+End Class
+
+Public Class RTAURTCommandErrorMessages
+    Public Const SentValuesErrorCantFindElement As String = "Set Values Error: Cannot Find Element"
+    Public Const SequenceErrorNoCommands As String = "Sequence Error: Sequence contains no commands"
+    Public Const LinkSequenceErrorNoSuchName As String = "Linked Sequence Error: No Such Sequence"
 End Class
 
 Public Class ICommandResults
@@ -185,6 +192,7 @@ Public Class CommandFactory
     Private Shared _RTAURTCommandClearLogs As RTAURTCommandClearLogs
     Private Shared _RTAURTCommandSequence As RTAURTCommandSequence
     Private Shared _RTAURTLCommandLinkedSequence As RTAURTCommandLinkedSequence
+    Private Shared _nullCommand As RTAURTNullCommand
 
     Private Shared Function MakeCommand(Of T As {New})(ByVal var As T) As RTAURTCommand
         If var Is Nothing Then
@@ -224,39 +232,77 @@ Public Class CommandFactory
     Public Shared Function MakeLinkedSequenceCommand() As RTAURTCommand
         Return MakeCommand(_RTAURTLCommandLinkedSequence)
     End Function
+
+    Public Shared Function MakeNullCommand() As RTAURTCommand
+        If _nullCommand Is Nothing Then
+            _nullCommand = New RTAURTNullCommand
+        End If
+        Return _nullCommand
+    End Function
+End Class
+
+Public Class RTAURTNullCommand
+    Implements RTAURTCommand
+
+    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+        Return ICommandResults.Error
+    End Function
+
+    Public Function Execute(vbfb As URTVBFunctionBlock, params As IRTAURTCommandParameters, Optional callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
+        Return ICommandResults.Error
+    End Function
 End Class
 
 Public Class RTAURTCommandConnect
     Implements RTAURTCommand
 
     Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
-        Throw New NotImplementedException()
+        Dim init As Boolean = True
+        Dim result As ICommandResult
+
+        Dim connectParams As RTAURTCommandConnectParameters
+        If Not context.params Is Nothing Then
+            connectParams = TryCast(context.params, RTAURTCommandConnectParameters)
+            If Not connectParams Is Nothing Then
+                context.vbfb.Connect(connectParams.Init)
+                result = ICommandResults.Done
+            Else
+                RaiseMessage.Raise(context.vbfb, "Unexpected Type for Command Connect parameter")
+                result = ICommandResults.Error
+            End If
+        Else
+            RaiseMessage.Raise(context.vbfb, "No Parameters")
+            result = ICommandResults.Error
+        End If
+
+        Return result
     End Function
 
     Public Function Execute(vbfb As URTVBFunctionBlock,
                             ByVal params As IRTAURTCommandParameters,
                             Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-        If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return ICommandResults.Stopped
+        Throw New NotImplementedException()
+        'If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return ICommandResults.Stopped
 
-        Dim init As Boolean = True
-        Dim result As ICommandResult
+        'Dim init As Boolean = True
+        'Dim result As ICommandResult
 
-        Dim connectParams As RTAURTCommandConnectParameters
-        If Not params Is Nothing Then
-            connectParams = TryCast(params, RTAURTCommandConnectParameters)
-            If Not connectParams Is Nothing Then
-                vbfb.Connect(connectParams.Init)
-                result = ICommandResults.Done
-            Else
-                RaiseMessage.Raise(vbfb, "Unexpected Type for Command Connect parameter")
-                result = ICommandResults.Error
-            End If
-        Else
-            RaiseMessage.Raise(vbfb, "No Parameters")
-            result = ICommandResults.Error
-        End If
+        'Dim connectParams As RTAURTCommandConnectParameters
+        'If Not params Is Nothing Then
+        '    connectParams = TryCast(params, RTAURTCommandConnectParameters)
+        '    If Not connectParams Is Nothing Then
+        '        vbfb.Connect(connectParams.Init)
+        '        result = ICommandResults.Done
+        '    Else
+        '        RaiseMessage.Raise(vbfb, "Unexpected Type for Command Connect parameter")
+        '        result = ICommandResults.Error
+        '    End If
+        'Else
+        '    RaiseMessage.Raise(vbfb, "No Parameters")
+        '    result = ICommandResults.Error
+        'End If
 
-        Return result
+        'Return result
 
     End Function
 End Class
@@ -265,33 +311,52 @@ Public Class RTAURTCommandEnableHistory
     Implements RTAURTCommand
 
     Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
-        Throw New NotImplementedException()
+        Dim init As Boolean = True
+
+        Dim enableHistParams As RTAURTCommandEnableHistoryParameters
+        If Not context.params Is Nothing Then
+            enableHistParams = TryCast(context.params, RTAURTCommandEnableHistoryParameters)
+            If Not enableHistParams Is Nothing Then
+                context.vbfb.HistoryLog = enableHistParams.HistoryLogger
+
+                For Each name In enableHistParams.NamesToHistorize
+                    If Not context.vbfb.HistoryLog.RegisterItem(CType(context.vbfb, IUrtTreeMember), name) Then
+                        RaiseMessage.Raise(context.vbfb, "History - could not find name")
+                    End If
+                Next
+            Else
+                RaiseMessage.Raise(context.vbfb, "Unexpected Type for Command Connect parameter")
+            End If
+        End If
+
+        Return ICommandResults.Done
     End Function
 
     Public Function Execute(vbfb As URTVBFunctionBlock,
                             ByVal params As IRTAURTCommandParameters,
                             Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-        If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return ICommandResults.Stopped
+        Throw New NotImplementedException()
+        'If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return ICommandResults.Stopped
 
-        Dim init As Boolean = True
+        'Dim init As Boolean = True
 
-        Dim enableHistParams As RTAURTCommandEnableHistoryParameters
-        If Not params Is Nothing Then
-            enableHistParams = TryCast(params, RTAURTCommandEnableHistoryParameters)
-            If Not enableHistParams Is Nothing Then
-                vbfb.HistoryLog = enableHistParams.HistoryLogger
+        'Dim enableHistParams As RTAURTCommandEnableHistoryParameters
+        'If Not params Is Nothing Then
+        '    enableHistParams = TryCast(params, RTAURTCommandEnableHistoryParameters)
+        '    If Not enableHistParams Is Nothing Then
+        '        vbfb.HistoryLog = enableHistParams.HistoryLogger
 
-                For Each name In enableHistParams.NamesToHistorize
-                    If Not vbfb.HistoryLog.RegisterItem(CType(vbfb, IUrtTreeMember), name) Then
-                        RaiseMessage.Raise(vbfb, "History - could not find name")
-                    End If
-                Next
-            Else
-                RaiseMessage.Raise(vbfb, "Unexpected Type for Command Connect parameter")
-            End If
-        End If
+        '        For Each name In enableHistParams.NamesToHistorize
+        '            If Not vbfb.HistoryLog.RegisterItem(CType(vbfb, IUrtTreeMember), name) Then
+        '                RaiseMessage.Raise(vbfb, "History - could not find name")
+        '            End If
+        '        Next
+        '    Else
+        '        RaiseMessage.Raise(vbfb, "Unexpected Type for Command Connect parameter")
+        '    End If
+        'End If
 
-        Return ICommandResults.Done
+        'Return ICommandResults.Done
     End Function
 End Class
 
@@ -299,7 +364,26 @@ Public Class RTAURTCommandExecuteVB
     Implements RTAURTCommand
 
     Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
-        Throw New NotImplementedException()
+        Dim count As Integer = 1
+
+        Dim executeParams As RTAURTCommandExecuteVBParameters
+        If Not context.params Is Nothing Then
+            executeParams = TryCast(context.params, RTAURTCommandExecuteVBParameters)
+            If Not executeParams Is Nothing Then
+                count = executeParams.Count
+                If count < 1 Then
+                    RaiseMessage.Raise(context.vbfb, "Count of executions < 1, forced to 1")
+                End If
+            Else
+
+            End If
+        End If
+
+        For ii = 0 To count - 1
+            context.vbfb.Execute(0, Nothing)
+        Next
+
+        Return ICommandResults.Done
     End Function
 
     Public Function Execute(vbfb As URTVBFunctionBlock,
@@ -330,11 +414,7 @@ Public Class RTAURTCommandExecuteVB
     End Function
 End Class
 
-Public Class RTAURTCommandErrorMessages
-    Public Const SentValuesErrorCantFindElement As String = "Set Values Error: Cannot Find Element"
-    Public Const SequenceErrorNoCommands As String = "Sequence Error: Sequence contains no commands"
-    Public Const LinkSequenceErrorNoSuchName As String = "Linked Sequence Error: No Such Sequence"
-End Class
+
 
 Public Class RTAURTCommandSetValues
     Implements RTAURTCommand
@@ -359,24 +439,26 @@ Public Class RTAURTCommandSetValues
 
 
     End Structure
-    Public ErrorMessages As ErrorMessagesStruct
 
-    Public Function Execute(vbfb As URTVBFunctionBlock,
-                            ByVal params As IRTAURTCommandParameters,
-                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-        If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return ICommandResults.Stopped
+    Private Shared _ErrorMessages As ErrorMessagesStruct
+    Public Shared ReadOnly Property ErrorMessages As ErrorMessagesStruct
+        Get
+            Return _ErrorMessages
+        End Get
+    End Property
 
+    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
         Dim result As ICommandResult
         Dim setValueParams As RTAURTCommandSetValuesParameters
         Dim idata As IUrtData
 
-        If Not params Is Nothing Then
-            setValueParams = TryCast(params, RTAURTCommandSetValuesParameters)
+        If Not context.params Is Nothing Then
+            setValueParams = TryCast(context.params, RTAURTCommandSetValuesParameters)
             If Not setValueParams Is Nothing Then
                 For Each svItem In setValueParams.NameValueList
-                    idata = vbfb.GetElement(svItem.Name)
+                    idata = context.vbfb.GetElement(svItem.Name)
                     If idata Is Nothing Then
-                        RaiseMessage.Raise(vbfb, ErrorMessages.CantFindElement)
+                        RaiseMessage.Raise(context.vbfb, ErrorMessages.CantFindElement)
                         result = ICommandResults.Error
                         Exit For
                     End If
@@ -384,26 +466,26 @@ Public Class RTAURTCommandSetValues
                         Try
                             idata.PutVariantValue(svItem.Value, "")
                         Catch ex As Exception
-                            RaiseMessage.Raise(vbfb, ErrorMessages.ValueFailsToConvert)
+                            RaiseMessage.Raise(context.vbfb, ErrorMessages.ValueFailsToConvert)
                             result = ICommandResults.Error
                         End Try
                     Else
                         Dim iRtaData As IRTAUrtData
-                        iRtaData = TryCast(vbfb.GetElement(svItem.Name), IRTAUrtData)
+                        iRtaData = TryCast(context.vbfb.GetElement(svItem.Name), IRTAUrtData)
                         If Not iRtaData Is Nothing Then
                             If svItem.Index < 0 Or svItem.Index > idata.Size - 1 Then
-                                RaiseMessage.Raise(vbfb, ErrorMessages.IndexOutOfRange)
+                                RaiseMessage.Raise(context.vbfb, ErrorMessages.IndexOutOfRange)
                                 result = ICommandResults.Error
                             Else
                                 Try
                                     iRtaData.Item(svItem.Index) = svItem.Value
                                 Catch ex As Exception
-                                    RaiseMessage.Raise(vbfb, ErrorMessages.ValueFailsToConvert)
+                                    RaiseMessage.Raise(context.vbfb, ErrorMessages.ValueFailsToConvert)
                                     result = ICommandResults.Error
                                 End Try
                             End If
                         Else
-                            RaiseMessage.Raise(vbfb, "SetValues Command: Error get IRTAURTData interface")
+                            RaiseMessage.Raise(context.vbfb, "SetValues Command: Error get IRTAURTData interface")
                             result = ICommandResults.Error
                         End If
                     End If
@@ -417,41 +499,119 @@ Public Class RTAURTCommandSetValues
         If result Is Nothing Then result = ICommandResults.Done
 
         Return result
+
     End Function
 
-    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+    Public Function Execute(vbfb As URTVBFunctionBlock,
+                            ByVal params As IRTAURTCommandParameters,
+                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
+
         Throw New NotImplementedException()
+
+        'If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return ICommandResults.Stopped
+
+        'Dim result As ICommandResult
+        'Dim setValueParams As RTAURTCommandSetValuesParameters
+        'Dim idata As IUrtData
+
+        'If Not params Is Nothing Then
+        '    setValueParams = TryCast(params, RTAURTCommandSetValuesParameters)
+        '    If Not setValueParams Is Nothing Then
+        '        For Each svItem In setValueParams.NameValueList
+        '            idata = vbfb.GetElement(svItem.Name)
+        '            If idata Is Nothing Then
+        '                RaiseMessage.Raise(vbfb, ErrorMessages.CantFindElement)
+        '                result = ICommandResults.Error
+        '                Exit For
+        '            End If
+        '            If svItem.IsScalar Then
+        '                Try
+        '                    idata.PutVariantValue(svItem.Value, "")
+        '                Catch ex As Exception
+        '                    RaiseMessage.Raise(vbfb, ErrorMessages.ValueFailsToConvert)
+        '                    result = ICommandResults.Error
+        '                End Try
+        '            Else
+        '                Dim iRtaData As IRTAUrtData
+        '                iRtaData = TryCast(vbfb.GetElement(svItem.Name), IRTAUrtData)
+        '                If Not iRtaData Is Nothing Then
+        '                    If svItem.Index < 0 Or svItem.Index > idata.Size - 1 Then
+        '                        RaiseMessage.Raise(vbfb, ErrorMessages.IndexOutOfRange)
+        '                        result = ICommandResults.Error
+        '                    Else
+        '                        Try
+        '                            iRtaData.Item(svItem.Index) = svItem.Value
+        '                        Catch ex As Exception
+        '                            RaiseMessage.Raise(vbfb, ErrorMessages.ValueFailsToConvert)
+        '                            result = ICommandResults.Error
+        '                        End Try
+        '                    End If
+        '                Else
+        '                    RaiseMessage.Raise(vbfb, "SetValues Command: Error get IRTAURTData interface")
+        '                    result = ICommandResults.Error
+        '                End If
+        '            End If
+
+        '        Next
+
+        '    Else
+
+        '    End If
+        'End If
+        'If result Is Nothing Then result = ICommandResults.Done
+
+        'Return result
     End Function
+
+
 End Class
 
 Public Class RTAURTCommandMessage
     Implements RTAURTCommand
 
     Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
-        Throw New NotImplementedException()
-    End Function
-
-    Public Function Execute(vbfb As URTVBFunctionBlock,
-                            ByVal params As IRTAURTCommandParameters,
-                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-        If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return ICommandResults.Stopped
-
         Dim msgString As String
 
         Dim messageParams As RTAURTCommandMessageParameters
-        If Not params Is Nothing Then
-            messageParams = TryCast(params, RTAURTCommandMessageParameters)
+        If Not context.params Is Nothing Then
+            messageParams = TryCast(context.params, RTAURTCommandMessageParameters)
             If Not messageParams Is Nothing Then
                 msgString = messageParams.MessageText
                 If String.IsNullOrEmpty(msgString) Then
-                    RaiseMessage.Raise(vbfb, "MessageCommand writing empty message")
+                    RaiseMessage.Raise(context.vbfb, "MessageCommand writing empty message")
                 Else
-                    RaiseMessage.Raise(vbfb, msgString)
+                    RaiseMessage.Raise(context.vbfb, msgString)
                 End If
             Else
 
             End If
         End If
+
+        Return ICommandResults.Done
+    End Function
+
+    Public Function Execute(vbfb As URTVBFunctionBlock,
+                            ByVal params As IRTAURTCommandParameters,
+                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
+        'If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return ICommandResults.Stopped
+
+        'Dim msgString As String
+
+        'Dim messageParams As RTAURTCommandMessageParameters
+        'If Not params Is Nothing Then
+        '    messageParams = TryCast(params, RTAURTCommandMessageParameters)
+        '    If Not messageParams Is Nothing Then
+        '        msgString = messageParams.MessageText
+        '        If String.IsNullOrEmpty(msgString) Then
+        '            RaiseMessage.Raise(vbfb, "MessageCommand writing empty message")
+        '        Else
+        '            RaiseMessage.Raise(vbfb, msgString)
+        '        End If
+        '    Else
+
+        '    End If
+        'End If
+        Throw New NotImplementedException()
 
         Return ICommandResults.Done
 
@@ -467,34 +627,56 @@ Public Class RTAURTCommandClearLogs
         MessageAndHistory = 2
     End Enum
 
-    Public Function Execute(vbfb As URTVBFunctionBlock,
-                            ByVal params As IRTAURTCommandParameters,
-                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-        If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return ICommandResults.Stopped
-
+    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
         Dim clearLogsParams As RTAURTCommandClearLogsParameters
-        If Not params Is Nothing Then
-            clearLogsParams = TryCast(params, RTAURTCommandClearLogsParameters)
+        If Not context.params Is Nothing Then
+            clearLogsParams = TryCast(context.params, RTAURTCommandClearLogsParameters)
             If Not clearLogsParams Is Nothing Then
                 Select Case clearLogsParams.LogsToClear
                     Case Logs.MessageLog
-                        vbfb.ClearMessageLog()
+                        context.vbfb.ClearMessageLog()
                     Case Logs.HistoryLog
-                        vbfb.ClearHistoryLog()
+                        context.vbfb.ClearHistoryLog()
                     Case Logs.MessageAndHistory
-                        vbfb.ClearMessageLog()
-                        vbfb.ClearHistoryLog()
+                        context.vbfb.ClearMessageLog()
+                        context.vbfb.ClearHistoryLog()
                 End Select
             Else
 
             End If
         End If
         Return ICommandResults.Done
+
     End Function
 
-    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+    Public Function Execute(vbfb As URTVBFunctionBlock,
+                            ByVal params As IRTAURTCommandParameters,
+                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
         Throw New NotImplementedException()
+
+        'If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return ICommandResults.Stopped
+
+        'Dim clearLogsParams As RTAURTCommandClearLogsParameters
+        'If Not params Is Nothing Then
+        '    clearLogsParams = TryCast(params, RTAURTCommandClearLogsParameters)
+        '    If Not clearLogsParams Is Nothing Then
+        '        Select Case clearLogsParams.LogsToClear
+        '            Case Logs.MessageLog
+        '                vbfb.ClearMessageLog()
+        '            Case Logs.HistoryLog
+        '                vbfb.ClearHistoryLog()
+        '            Case Logs.MessageAndHistory
+        '                vbfb.ClearMessageLog()
+        '                vbfb.ClearHistoryLog()
+        '        End Select
+        '    Else
+
+        '    End If
+        'End If
+        'Return ICommandResults.Done
     End Function
+
+
 End Class
 
 Public MustInherit Class RTAURTCommandParameters
@@ -594,6 +776,27 @@ Public Class RTAURTCommandEnableHistoryParameters
 
     Public Overrides Function GetCommand() As RTAURTCommand
         Return CommandFactory.MakeEnableHistoryCommand
+    End Function
+End Class
+
+Public Class RTAURTCommandNullParameters
+    Inherits RTAURTCommandParameters
+
+    Private Shared _Instance As RTAURTCommandNullParameters
+    Public Shared ReadOnly Property Instance As RTAURTCommandNullParameters
+        Get
+            If _Instance Is Nothing Then
+                _Instance = New RTAURTCommandNullParameters
+            End If
+            Return _Instance
+        End Get
+    End Property
+    Private Sub New()
+
+    End Sub
+
+    Public Overrides Function GetCommand() As RTAURTCommand
+        Return CommandFactory.MakeNullCommand()
     End Function
 End Class
 

@@ -64,4 +64,11 @@ Public MustInherit Class URTVBFunctionBlock
         HistoryLog.ClearHistory()
     End Sub
 
+    Public Function GetLogMessageCount() As Integer
+        Return Logger.Count
+    End Function
+
+    Public Function GetLastLogMessage() As String
+        Return Logger.GetLastMessage
+    End Function
 End Class

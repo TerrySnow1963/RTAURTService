@@ -4,16 +4,28 @@ Imports URT
 Public Interface IRTAUrtMessageLog
     Sub Write(ByVal message As String)
     Sub ClearLog()
+    Function GetLastMessage() As String
+    ReadOnly Property Count() As Integer
 End Interface
 
 Public Class RTAURTNullLogger
     Implements IRTAUrtMessageLog
+
+    Private ReadOnly Property IRTAUrtMessageLog_Count As Integer Implements IRTAUrtMessageLog.Count
+        Get
+            Return 0
+        End Get
+    End Property
 
     Public Sub ClearLog() Implements IRTAUrtMessageLog.ClearLog
     End Sub
 
     Public Sub Write(message As String) Implements IRTAUrtMessageLog.Write
     End Sub
+
+    Public Function GetLastMessage() As String Implements IRTAUrtMessageLog.GetLastMessage
+        Return String.Empty
+    End Function
 End Class
 
 Public Class RTAUrtTraceLogger
@@ -32,14 +44,14 @@ Public Class RTAUrtTraceLogger
         Trace.WriteLine(message)
     End Sub
 
-    Public ReadOnly Property Count As Integer
+    Public ReadOnly Property Count As Integer Implements IRTAUrtMessageLog.Count
         Get
             Return _messageList.Count
         End Get
     End Property
 
 
-    Public Function GetLastMessage() As String
+    Public Function GetLastMessage() As String Implements IRTAUrtMessageLog.GetLastMessage
         Dim retString As String = String.Empty
 
         If _messageList.Count > 0 Then
@@ -53,4 +65,5 @@ Public Class RTAUrtTraceLogger
     Public Sub ClearLog() Implements IRTAUrtMessageLog.ClearLog
         _messageList.Clear()
     End Sub
+
 End Class
