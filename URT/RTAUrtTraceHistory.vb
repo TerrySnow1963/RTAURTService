@@ -7,16 +7,28 @@ Public Interface IRTAUrtHistoryLog
     Sub Historize()
     Sub ClearHistory()
     Function RegisterItem(ByRef treeMember As IUrtTreeMember, ByVal name As String) As Boolean
+    Function GetLog() As List(Of String)
+    ReadOnly Property CountTimeStamps As Integer
 End Interface
 
 Public Class RTAUrtNullHistory
     Implements IRTAUrtHistoryLog
+
+    Public ReadOnly Property CountTimeStamps As Integer Implements IRTAUrtHistoryLog.CountTimeStamps
+        Get
+            Return 0
+        End Get
+    End Property
 
     Public Sub ClearHistory() Implements IRTAUrtHistoryLog.ClearHistory
     End Sub
 
     Public Sub Historize() Implements IRTAUrtHistoryLog.Historize
     End Sub
+
+    Public Function GetLog() As List(Of String) Implements IRTAUrtHistoryLog.GetLog
+        Return New List(Of String)
+    End Function
 
     Public Function RegisterItem(ByRef treeMember As IUrtTreeMember, name As String) As Boolean Implements IRTAUrtHistoryLog.RegisterItem
         Return True
@@ -30,6 +42,7 @@ Public Class RTAUrtTraceHistory
     Private _count As Integer
     Private _scalarList As List(Of IRTAUrtData)
     Private _arrayList As List(Of IRTAUrtData)
+    Private _lastLine As String
 
     Public ReadOnly Property CountTags As Integer
         Get
@@ -50,25 +63,20 @@ Public Class RTAUrtTraceHistory
         sr.Write(String.Format("History Step ({1}):", _scalarList.Count + _arrayList.Count, _count.ToString))
         For ii = 0 To _scalarList.Count - 1
             sr.Write(_scalarList(ii).Item(0))
-            If ii < _scalarList.Count - 2 Then
-                sr.Write(",")
-            End If
+            sr.Write(",")
         Next
         Dim arraysize As Integer
         For ii = 0 To _arrayList.Count - 1
             arraysize = CType(_arrayList(ii), IUrtData).Size
             For jj = 0 To arraysize - 1
                 sr.Write(_arrayList(ii).Item(jj))
-                If jj < arraysize - 2 Then
-                    sr.Write(",")
-                End If
-            Next
-            If ii < _scalarList.Count - 2 Then
                 sr.Write(",")
-            End If
+            Next
         Next
 
-        Trace.WriteLine(sr.ToString)
+        _lastLine = sr.ToString
+        If _lastLine.EndsWith(","c) Then _lastLine = _lastLine.TrimEnd({","c})
+        Trace.WriteLine(_lastLine)
 
         _count += 1
     End Sub
@@ -92,7 +100,13 @@ Public Class RTAUrtTraceHistory
         _count = 0
     End Sub
 
-    Public ReadOnly Property CountTimeStamps As Integer
+    Public Function GetLog() As List(Of String) Implements IRTAUrtHistoryLog.GetLog
+        Dim list As New List(Of String)
+        list.Add(_lastLine)
+        Return list
+    End Function
+
+    Public ReadOnly Property CountTimeStamps As Integer Implements IRTAUrtHistoryLog.CountTimeStamps
         Get
             Return _count
         End Get

@@ -33,6 +33,7 @@ Public MustInherit Class CUrtFBBase
             Return _history
         End Get
         Set(value As IRTAUrtHistoryLog)
+            'ToDo, think there is a problem when this property is written to multiple times
             If Not value Is Nothing Then
                 _history = value
             End If

@@ -12,7 +12,9 @@ Imports URTVBQALSimpleScript
         Dim vbFB As URTVBQALSimpleScript.URTVBQALSimpleScript = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
         Dim callback As ICommandCallback = CommandCallbacks.Stop
 
-        Dim cmdResult As ICommandResult = params.GetCommand.Execute(vbFB, params, callback)
+        Dim cmdExec = New CommandExecutive(vbFB, callback)
+
+        Dim cmdResult As ICommandResult = cmdExec.Invoke(params)
         Assert.AreEqual(RTAURTCommandResultCode.CMD_STOPPED, cmdResult.GetResultCode)
         Assert.AreEqual(expectedMessages, logger.Count)
     End Sub
@@ -24,6 +26,8 @@ Imports URTVBQALSimpleScript
         Dim vbFB As URTVBQALSimpleScript.URTVBQALSimpleScript = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
         Dim callback As ICommandCallback = CommandCallbacks.LimitCommandCallsTo(commandCallLimit)
 
+        Dim cmdExec = New CommandExecutive(vbFB, callback)
+
         Dim cmdResult As ICommandResult
 
         If commandCallLimit < 1 Then commandCallLimit = 1
@@ -31,7 +35,7 @@ Imports URTVBQALSimpleScript
         Dim counter As Integer = 0
 
         For counter = 0 To commandCallLimit
-            cmdResult = params.GetCommand.Execute(vbFB, params, callback)
+            cmdResult = cmdExec.Invoke(params)
             If cmdResult.GetResultCode = RTAURTCommandResultCode.CMD_STOPPED Then Exit For
         Next
         Assert.IsNotNull(cmdResult)

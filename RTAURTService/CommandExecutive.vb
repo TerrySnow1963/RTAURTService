@@ -33,29 +33,32 @@ Public Class CommandExecutive
     Private Sub New()
 
     End Sub
-    Public Sub New(vb As URTVBFunctionBlock)
+    Public Sub New(vb As URTVBFunctionBlock, Optional callBack As ICommandCallback = Nothing)
         _vbfb = vb
-        'Todo add callback as argument to Sub New
-        _callback = CommandCallbacks.LimitCommandCallsTo(100)
+        If callBack Is Nothing Then callBack = CommandCallbacks.Continue
+        _callback = callBack
         _TotalCommandsExecuted = 0
         _currentParams = RTAURTCommandNullParameters.Instance
     End Sub
 
-    Private Sub PreProcessCommand()
-
+    Private Sub PreProcessCommand(Of T As IRTAURTCommandParameters)(param As T)
+        _currentParams = param
     End Sub
-    Private Sub PostProcessCommand()
+    Private Sub PostProcessCommand(Of T As IRTAURTCommandParameters)(param As T)
         _TotalCommandsExecuted += 1
+        _currentParams = RTAURTCommandNullParameters.Instance
     End Sub
     Public Function Invoke(Of T As IRTAURTCommandParameters)(param As T) As ICommandResult
         Dim cmdResult As ICommandResult
 
-        _currentParams = param
-        PreProcessCommand()
+        PreProcessCommand(param)
+        If CanContinue() Then
+            cmdResult = _currentParams.GetCommand.Execute(Me)
+        Else
+            cmdResult = CommandResults.Stopped
+        End If
+        PostProcessCommand(param)
 
-        cmdResult = _currentParams.GetCommand.Execute(Me)
-        PostProcessCommand()
-        _currentParams = RTAURTCommandNullParameters.Instance
         Return cmdResult
     End Function
 
