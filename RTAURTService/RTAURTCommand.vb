@@ -19,6 +19,7 @@ End Interface
 
 Public Interface IRTAURTCommandParameters
     Function GetCommand() As RTAURTCommand
+    Function TryGetRecursiveName() As String
 End Interface
 
 Public Enum RTAURTCommandResultCode
@@ -363,6 +364,11 @@ Public Class RTAURTCommandSetValues
                 Return _PREFIX & "Unable to convert value to type"
             End Get
         End Property
+        Public ReadOnly Property NoIRTAURTDataInterface As String
+            Get
+                Return _PREFIX & "Error getting IRTAURTData interface"
+            End Get
+        End Property
     End Structure
 
     Private Shared _ErrorMessages As ErrorMessagesStruct
@@ -372,59 +378,57 @@ Public Class RTAURTCommandSetValues
         End Get
     End Property
 
-    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+    Private Function HandleError(context As ICommandContext, msg As String) As ICommandResult
+        RaiseMessage.Raise(context.vbfb, msg)
+        Return CommandResults.Error
+    End Function
+
+    Private Function HandleSetValueForScalar(context As ICommandContext, idata As IUrtData, svItem As SetValueData) As ICommandResult
+        Try
+            idata.PutVariantValue(svItem.Value, "")
+            Return CommandResults.Done
+        Catch ex As Exception
+            Return HandleError(context, ErrorMessages.ValueFailsToConvert)
+        End Try
+    End Function
+
+
+    Private Function HandleSetValueForArray(context As ICommandContext, idata As IUrtData, svItem As SetValueData) As ICommandResult
         Dim result As ICommandResult
-        Dim setValueParams As RTAURTCommandSetValuesParameters
-        Dim idata As IUrtData
-
-        If Not context.params Is Nothing Then
-            setValueParams = TryCast(context.params, RTAURTCommandSetValuesParameters)
-            If Not setValueParams Is Nothing Then
-                For Each svItem In setValueParams.NameValueList
-                    idata = context.vbfb.GetElement(svItem.Name)
-                    If idata Is Nothing Then
-                        RaiseMessage.Raise(context.vbfb, ErrorMessages.CantFindElement)
-                        result = CommandResults.Error
-                        Exit For
-                    End If
-                    If svItem.IsScalar Then
-                        Try
-                            idata.PutVariantValue(svItem.Value, "")
-                        Catch ex As Exception
-                            RaiseMessage.Raise(context.vbfb, ErrorMessages.ValueFailsToConvert)
-                            result = CommandResults.Error
-                        End Try
-                    Else
-                        Dim iRtaData As IRTAUrtData
-                        iRtaData = TryCast(context.vbfb.GetElement(svItem.Name), IRTAUrtData)
-                        If Not iRtaData Is Nothing Then
-                            If svItem.Index < 0 Or svItem.Index > idata.Size - 1 Then
-                                RaiseMessage.Raise(context.vbfb, ErrorMessages.IndexOutOfRange)
-                                result = CommandResults.Error
-                            Else
-                                Try
-                                    iRtaData.Item(svItem.Index) = svItem.Value
-                                Catch ex As Exception
-                                    RaiseMessage.Raise(context.vbfb, ErrorMessages.ValueFailsToConvert)
-                                    result = CommandResults.Error
-                                End Try
-                            End If
-                        Else
-                            RaiseMessage.Raise(context.vbfb, "SetValues Command: Error get IRTAURTData interface")
-                            result = CommandResults.Error
-                        End If
-                    End If
-
-                Next
-
-            Else
-
-            End If
+        Dim iRtaData As IRTAUrtData = TryCast(context.vbfb.GetElement(svItem.Name), IRTAUrtData)
+        If iRtaData Is Nothing Then
+            result = HandleError(context, ErrorMessages.NoIRTAURTDataInterface)
+        ElseIf svItem.Index < 0 Or svItem.Index > idata.Size - 1 Then
+            result = HandleError(context, ErrorMessages.IndexOutOfRange)
+        Else
+            Try
+                iRtaData.Item(svItem.Index) = svItem.Value
+                result = CommandResults.Done
+            Catch ex As Exception
+                result = HandleError(context, ErrorMessages.ValueFailsToConvert)
+            End Try
         End If
-        If result Is Nothing Then result = CommandResults.Done
-
         Return result
+    End Function
 
+    Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
+        Dim idata As IUrtData
+        Dim result As ICommandResult
+
+        Dim setValueParams As RTAURTCommandSetValuesParameters = CType(context.params, RTAURTCommandSetValuesParameters)
+        For Each svItem In setValueParams.NameValueList
+            idata = context.vbfb.GetElement(svItem.Name)
+            If idata Is Nothing Then
+                result = HandleError(context, ErrorMessages.CantFindElement)
+            ElseIf svItem.IsScalar Then
+                result = HandleSetValueForScalar(context, idata, svItem)
+            Else
+                result = HandleSetValueForArray(context, idata, svItem)
+            End If
+            If result.GetResultCode <> RTAURTCommandResultCode.CMD_DONE Then Exit For
+        Next
+        If result Is Nothing Then result = CommandResults.Done
+        Return result
     End Function
 
     Public Function Execute(vbfb As URTVBFunctionBlock,
@@ -444,21 +448,6 @@ Public Class RTAURTCommandMessage
     Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
         Dim msgString As String
 
-        'Dim messageParams As RTAURTCommandMessageParameters
-        'If Not context.params Is Nothing Then
-        '    messageParams = TryCast(context.params, RTAURTCommandMessageParameters)
-        '    If Not messageParams Is Nothing Then
-        '        msgString = messageParams.MessageText
-        '        If String.IsNullOrEmpty(msgString) Then
-        '            RaiseMessage.Raise(context.vbfb, "MessageCommand writing empty message")
-        '        Else
-        '            RaiseMessage.Raise(context.vbfb, msgString)
-        '        End If
-        '    Else
-
-        '    End If
-        'End If
-
         Dim messageParams As RTAURTCommandMessageParameters
         messageParams = TryCast(context.params, RTAURTCommandMessageParameters)
         msgString = messageParams.MessageText
@@ -473,24 +462,7 @@ Public Class RTAURTCommandMessage
     Public Function Execute(vbfb As URTVBFunctionBlock,
                             ByVal params As IRTAURTCommandParameters,
                             Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-        'If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return ICommandResults.Stopped
 
-        'Dim msgString As String
-
-        'Dim messageParams As RTAURTCommandMessageParameters
-        'If Not params Is Nothing Then
-        '    messageParams = TryCast(params, RTAURTCommandMessageParameters)
-        '    If Not messageParams Is Nothing Then
-        '        msgString = messageParams.MessageText
-        '        If String.IsNullOrEmpty(msgString) Then
-        '            RaiseMessage.Raise(vbfb, "MessageCommand writing empty message")
-        '        Else
-        '            RaiseMessage.Raise(vbfb, msgString)
-        '        End If
-        '    Else
-
-        '    End If
-        'End If
         Throw New NotImplementedException()
 
         Return CommandResults.Done
@@ -533,27 +505,6 @@ Public Class RTAURTCommandClearLogs
                             ByVal params As IRTAURTCommandParameters,
                             Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
         Throw New NotImplementedException()
-
-        'If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return ICommandResults.Stopped
-
-        'Dim clearLogsParams As RTAURTCommandClearLogsParameters
-        'If Not params Is Nothing Then
-        '    clearLogsParams = TryCast(params, RTAURTCommandClearLogsParameters)
-        '    If Not clearLogsParams Is Nothing Then
-        '        Select Case clearLogsParams.LogsToClear
-        '            Case Logs.MessageLog
-        '                vbfb.ClearMessageLog()
-        '            Case Logs.HistoryLog
-        '                vbfb.ClearHistoryLog()
-        '            Case Logs.MessageAndHistory
-        '                vbfb.ClearMessageLog()
-        '                vbfb.ClearHistoryLog()
-        '        End Select
-        '    Else
-
-        '    End If
-        'End If
-        'Return ICommandResults.Done
     End Function
 
 
@@ -564,6 +515,9 @@ Public MustInherit Class RTAURTCommandParameters
 
     Public MustOverride Function GetCommand() As RTAURTCommand Implements IRTAURTCommandParameters.GetCommand
 
+    Public Overridable Function TryGetRecursiveName() As String Implements IRTAURTCommandParameters.TryGetRecursiveName
+        Return Nothing
+    End Function
 End Class
 
 Public Class RTAURTCommandConnectParameters

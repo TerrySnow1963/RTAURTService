@@ -106,7 +106,24 @@ Public Class RTAURTCommandLinkedSequence
     Implements RTAURTCommand
 
     Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
-        Throw New NotImplementedException()
+        Dim seqParams As RTAURTCommandLinkedSequenceParameters
+        Dim resultCmd As ICommandResult
+
+
+        seqParams = CType(context.params, RTAURTCommandLinkedSequenceParameters)
+
+        'ToDo need to check for recursion
+        Dim linkedSeqParams As RTAURTCommandSequenceParameters = SequenceFactory.GetSequenceByName(seqParams.LinkedSequenceName)
+        If linkedSeqParams Is Nothing Then
+            RaiseMessage.Raise(context.vbfb, RTAURTCommandErrorMessages.LinkSequenceErrorNoSuchName)
+            Return CommandResults.Error
+        Else
+            'resultCmd = linkedSeqParams.GetCommand.Execute(context.vbfb, linkedSeqParams, callback)
+            resultCmd = context.cmdExec.Invoke(linkedSeqParams)
+            Return resultCmd
+        End If
+
+        Return CommandResults.Done
     End Function
 
     Public Function Execute(vbfb As URTVBFunctionBlock,
@@ -158,6 +175,10 @@ Public Class RTAURTCommandLinkedSequenceParameters
 
     Public Overrides Function GetCommand() As RTAURTCommand
         Return CommandFactory.MakeLinkedSequenceCommand
+    End Function
+
+    Public Overrides Function TryGetRecursiveName() As String
+        Return _LinkedSequenceName
     End Function
 
 End Class

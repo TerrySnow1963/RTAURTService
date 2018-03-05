@@ -10,6 +10,8 @@ Public Class CommandExecutive
     Private _callback As ICommandCallback
     Private _currentParams As IRTAURTCommandParameters
 
+    Private _commandStack As Stack(Of String)
+
     ReadOnly Property TotalCommandsExecuted As Integer
 
     Public ReadOnly Property cmdExec As CommandExecutive Implements ICommandContext.cmdExec
@@ -39,15 +41,25 @@ Public Class CommandExecutive
         _callback = callBack
         _TotalCommandsExecuted = 0
         _currentParams = RTAURTCommandNullParameters.Instance
+        _commandStack = New Stack(Of String)
     End Sub
 
     Private Sub PreProcessCommand(Of T As IRTAURTCommandParameters)(param As T)
         _currentParams = param
+        Dim name As String = param.TryGetRecursiveName
+        If name IsNot Nothing Then _commandStack.Push(name)
+
+        If _commandStack.Where(Function(x) x = name).Count > 5 Then
+            _callback = CommandCallbacks.Stop
+            RaiseMessage.Raise(_vbfb, "Recursive Limit Reached")
+        End If
     End Sub
+
     Private Sub PostProcessCommand(Of T As IRTAURTCommandParameters)(param As T)
         _TotalCommandsExecuted += 1
         _currentParams = RTAURTCommandNullParameters.Instance
     End Sub
+
     Public Function Invoke(Of T As IRTAURTCommandParameters)(param As T) As ICommandResult
         Dim cmdResult As ICommandResult
 
