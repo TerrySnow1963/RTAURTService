@@ -6,9 +6,8 @@ Imports UrtTlbLib
 Imports RTAInterfaces
 Imports URTVBQALSimpleScript
 
-Public Class ScriptVarNames
+Public Class ScriptDataElementNames
     Public Shared inFloat1 As String = "inFloat1"
-    Public Shared inFloat2 As String = "inFloat2"
     Public Shared outFloat1 As String = "outFloat1"
     Public Shared outFloat2 As String = "outFloat2"
     Public Shared inSize As String = "inSize"
@@ -16,12 +15,17 @@ Public Class ScriptVarNames
     Public Shared inUseUpCounter As String = "inUseUpCounter"
     Public Shared inArrayBool As String = "inArrayBool"
     Public Shared inArrayFloat As String = "inArrayFloat"
+
+    Public Shared ReadOnly Property CountScriptDataElements As Integer
+        Get
+            Return 8
+        End Get
+    End Property
+
 End Class
 
-<TestClass()> Public Class UnitTestCommands
-    Private Const _NUM_SCRIPT_PARAMS As Integer = 8
-
-    Private Function TestCommandReturnsDone(params As IRTAURTCommandParameters, Optional cmdExec As CommandExecutive = Nothing) As CommandExecutive
+Public Class UnitTestCommandsBase
+    Protected Function TestCommandReturnsDone(params As IRTAURTCommandParameters, Optional cmdExec As CommandExecutive = Nothing) As CommandExecutive
 
         If cmdExec Is Nothing Then
             Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(New RTAUrtTraceLogger)
@@ -33,7 +37,7 @@ End Class
         Return cmdExec
     End Function
 
-    Private Function TestCommandReturnsError(params As IRTAURTCommandParameters, expectedErrMsg As String, Optional cmdExec As CommandExecutive = Nothing) As CommandExecutive
+    Protected Function TestCommandReturnsError(params As IRTAURTCommandParameters, expectedErrMsg As String, Optional cmdExec As CommandExecutive = Nothing) As CommandExecutive
 
         If cmdExec Is Nothing Then
             Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(New RTAUrtTraceLogger)
@@ -47,7 +51,7 @@ End Class
         Return cmdExec
     End Function
 
-    Private Sub TestEndOfExecuteVBRun(cmdExec As CommandExecutive, numberOfExecutesExpected As Integer)
+    Protected Sub TestEndOfExecuteVBRun(cmdExec As CommandExecutive, numberOfExecutesExpected As Integer)
         Trace.WriteLine("Started TestEndOfExecuteVBRun")
         Trace.WriteLine("Testing Number of ExecuteVB Calls")
         Assert.AreEqual(numberOfExecutesExpected, cmdExec.vbfb.NumberOfExecuteExecutions)
@@ -56,23 +60,23 @@ End Class
         Trace.WriteLine("Finished TestEndOfExecuteVBRun")
     End Sub
 
-    Private Function StartWithCommandConnect() As CommandExecutive
+    Protected Function StartWithCommandConnect() As CommandExecutive
         Dim params As New RTAURTCommandConnectParameters(True)
         Dim cmdExec As CommandExecutive = TestCommandReturnsDone(params)
 
         Trace.WriteLine("Started StartWithCommandConnect")
-        Assert.AreEqual(_NUM_SCRIPT_PARAMS, cmdExec.vbfb.GetElements.Count)
+        Assert.AreEqual(ScriptDataElementNames.CountScriptDataElements, cmdExec.vbfb.GetElements.Count)
         Trace.WriteLine("Finished StartWithCommandConnect")
         Return cmdExec
     End Function
 
-    Private Sub TestExecuteVBCommandReturnsDone(ByVal cmdExec As CommandExecutive, ByVal numberOfExecutions As Integer)
+    Protected Sub TestExecuteVBCommandReturnsDone(ByVal cmdExec As CommandExecutive, ByVal numberOfExecutions As Integer)
         Dim params As New RTAURTCommandExecuteVBParameters(numberOfExecutions)
         Dim cmdResult As ICommandResult = cmdExec.Invoke(params)
         Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
     End Sub
 
-    Private Function TestEnableHistoryCommandReturnsDone(cmdExec As CommandExecutive, vars() As String) As Object
+    Protected Function TestEnableHistoryCommandReturnsDone(cmdExec As CommandExecutive, vars() As String) As Object
         Dim history As RTAUrtTraceHistory = New RTAUrtTraceHistory
         Dim EnableHistoryCommand As New RTAURTCommandEnableHistory
         Dim EnableHistoryCommandParams As New RTAURTCommandEnableHistoryParameters(history)
@@ -83,7 +87,7 @@ End Class
         Return history
     End Function
 
-    Private Function TestEnableHistoryCommandReturnsError(cmdExec As CommandExecutive, vars() As String, expectedMsg As String) As Object
+    Protected Function TestEnableHistoryCommandReturnsError(cmdExec As CommandExecutive, vars() As String, expectedMsg As String) As Object
         Dim history As RTAUrtTraceHistory = New RTAUrtTraceHistory
         Dim EnableHistoryCommand As New RTAURTCommandEnableHistory
         Dim EnableHistoryCommandParams As New RTAURTCommandEnableHistoryParameters(history)
@@ -94,12 +98,16 @@ End Class
         Return history
     End Function
 
-    Private Sub TestTestMessageIsDone(cmdExec As CommandExecutive, msg As String)
+    Protected Sub TestTestMessageIsDone(cmdExec As CommandExecutive, msg As String)
         Dim MessageCommandParams = New RTAURTCommandMessageParameters(msg)
         TestCommandReturnsDone(MessageCommandParams, cmdExec)
         Assert.AreEqual(1, cmdExec.vbfb.Logger.Count)
         Assert.AreEqual(msg, cmdExec.vbfb.Logger.GetLastMessage)
     End Sub
+End Class
+
+<TestClass()> Public Class UnitTestCommands
+    Inherits UnitTestCommandsBase
 
     <TestMethod()> Public Sub TestCommandConnect()
         StartWithCommandConnect()
@@ -120,7 +128,7 @@ End Class
         Dim NumberOfExecutes As Integer = 5
         Dim ExecuteCommandParams As New RTAURTCommandExecuteVBParameters(NumberOfExecutes)
 
-        Dim outCounter As ConInt = cmdExec.vbfb.GetElement(ScriptVarNames.outCounter)
+        Dim outCounter As ConInt = cmdExec.vbfb.GetElement(ScriptDataElementNames.outCounter)
         Dim InitCounterVal As Integer = 3
         outCounter.Val = InitCounterVal
 
@@ -136,7 +144,7 @@ End Class
         Dim NumberOfExecutes As Integer = 3
         Dim ExecuteVBCommandParams As New RTAURTCommandExecuteVBParameters(NumberOfExecutes)
 
-        Dim outCounter As ConInt = cmdExec.vbfb.GetElement(ScriptVarNames.outCounter)
+        Dim outCounter As ConInt = cmdExec.vbfb.GetElement(ScriptDataElementNames.outCounter)
         Dim InitCounterVal As Integer = 7
 
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
@@ -155,12 +163,12 @@ End Class
         Dim NumberOfExecutes As Integer = 3
         Dim ExecuteVBCommandParams As New RTAURTCommandExecuteVBParameters(NumberOfExecutes)
 
-        Dim outCounter As ConInt = cmdExec.vbfb.GetElement(ScriptVarNames.outCounter)
+        Dim outCounter As ConInt = cmdExec.vbfb.GetElement(ScriptDataElementNames.outCounter)
         Dim InitCounterVal As Integer = 7
 
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
-        SetValuesCommandParams.AddValue(ScriptVarNames.outCounter, InitCounterVal)
-        SetValuesCommandParams.AddValue(ScriptVarNames.inUseUpCounter, False)
+        SetValuesCommandParams.AddValue(ScriptDataElementNames.outCounter, InitCounterVal)
+        SetValuesCommandParams.AddValue(ScriptDataElementNames.inUseUpCounter, False)
 
         TestCommandReturnsDone(SetValuesCommandParams, cmdExec)
         TestCommandReturnsDone(ExecuteVBCommandParams, cmdExec)
@@ -213,7 +221,7 @@ End Class
         Dim newElementValue As String = "this cannot be a single"
         Dim SetValuesCommand As New RTAURTCommandSetValues()
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
-        SetValuesCommandParams.AddValue(ScriptVarNames.inFloat1, newElementValue)
+        SetValuesCommandParams.AddValue(ScriptDataElementNames.inFloat1, newElementValue)
 
         TestCommandReturnsError(SetValuesCommandParams, RTAURTCommandSetValues.ErrorMessages.ValueFailsToConvert, cmdExec)
     End Sub
@@ -224,7 +232,7 @@ End Class
         Dim newElementValue As String = "this cannot be a single"
         Dim SetValuesCommand As New RTAURTCommandSetValues()
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
-        SetValuesCommandParams.AddValue(ScriptVarNames.inArrayFloat, newElementValue, 0)
+        SetValuesCommandParams.AddValue(ScriptDataElementNames.inArrayFloat, newElementValue, 0)
 
         TestCommandReturnsError(SetValuesCommandParams, RTAURTCommandSetValues.ErrorMessages.ValueFailsToConvert, cmdExec)
     End Sub
@@ -232,11 +240,11 @@ End Class
     <TestMethod()> Public Sub TestCommandSetValuesFor1IntArrayValue()
         Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
-        Dim OutFloat2 As ConFloat = cmdExec.vbfb.GetElement(ScriptVarNames.outFloat2)
+        Dim OutFloat2 As ConFloat = cmdExec.vbfb.GetElement(ScriptDataElementNames.outFloat2)
 
         Dim newElementValue As Single = 10.3!
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
-        SetValuesCommandParams.AddValue(ScriptVarNames.inArrayFloat, newElementValue, 0)
+        SetValuesCommandParams.AddValue(ScriptDataElementNames.inArrayFloat, newElementValue, 0)
 
         Dim ExecuteVBCommandParams As New RTAURTCommandExecuteVBParameters()
 
@@ -269,7 +277,7 @@ End Class
     Public Sub TestCommandEnableHistoryFor1ScalarSucceeds()
         Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
-        Dim history As RTAUrtTraceHistory = TestEnableHistoryCommandReturnsDone(cmdExec, {ScriptVarNames.outCounter})
+        Dim history As RTAUrtTraceHistory = TestEnableHistoryCommandReturnsDone(cmdExec, {ScriptDataElementNames.outCounter})
         TestExecuteVBCommandReturnsDone(cmdExec, 1)
 
         Assert.AreEqual(1, history.CountTimeStamps())
@@ -280,7 +288,7 @@ End Class
     Public Sub TestCommandEnableHistoryFor1BoolArray()
         Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
-        Dim history As RTAUrtTraceHistory = TestEnableHistoryCommandReturnsDone(cmdExec, {ScriptVarNames.inArrayBool})
+        Dim history As RTAUrtTraceHistory = TestEnableHistoryCommandReturnsDone(cmdExec, {ScriptDataElementNames.inArrayBool})
 
         TestExecuteVBCommandReturnsDone(cmdExec, 1)
 
@@ -292,9 +300,9 @@ End Class
     Public Sub TestCommandEnableHistoryFor3Items2Executes()
         Dim cmdExec As CommandExecutive = StartWithCommandConnect()
         Dim history As RTAUrtTraceHistory = TestEnableHistoryCommandReturnsDone(cmdExec,
-                                                                        {ScriptVarNames.inArrayBool,
-                                                                        ScriptVarNames.outCounter,
-                                                                        ScriptVarNames.inArrayFloat})
+                                                                        {ScriptDataElementNames.inArrayBool,
+                                                                        ScriptDataElementNames.outCounter,
+                                                                        ScriptDataElementNames.inArrayFloat})
         TestExecuteVBCommandReturnsDone(cmdExec, 2)
 
         Dim _INARRAYBOOL_SIZE As Integer = 4
@@ -312,7 +320,7 @@ End Class
     <TestMethod()> Public Sub TestCommandClearLogsClearsOnlyMessages()
         Dim cmdExec As CommandExecutive = StartWithCommandConnect()
 
-        TestEnableHistoryCommandReturnsDone(cmdExec, {ScriptVarNames.inArrayFloat})
+        TestEnableHistoryCommandReturnsDone(cmdExec, {ScriptDataElementNames.inArrayFloat})
         TestTestMessageIsDone(cmdExec, "This is a Test Message from TestCommandClearLogsClearsOnlyMessages")
 
         TestExecuteVBCommandReturnsDone(cmdExec, 2)
@@ -328,7 +336,7 @@ End Class
 
     <TestMethod()> Public Sub TestCommandClearLogsClearsOnlyHistory()
         Dim cmdExec As CommandExecutive = StartWithCommandConnect()
-        TestEnableHistoryCommandReturnsDone(cmdExec, {ScriptVarNames.inArrayFloat})
+        TestEnableHistoryCommandReturnsDone(cmdExec, {ScriptDataElementNames.inArrayFloat})
 
         TestTestMessageIsDone(cmdExec, "This is a Test Message from TestCommandClearLogsClearsOnlyHistory")
 
@@ -347,7 +355,7 @@ End Class
 
     <TestMethod()> Public Sub TestCommandClearLogsClearsMessageAndHistory()
         Dim cmdExec As CommandExecutive = StartWithCommandConnect()
-        TestEnableHistoryCommandReturnsDone(cmdExec, {ScriptVarNames.inArrayFloat})
+        TestEnableHistoryCommandReturnsDone(cmdExec, {ScriptDataElementNames.inArrayFloat})
 
         TestTestMessageIsDone(cmdExec, "This is a Test Message from TestCommandClearLogsClearsMessageAndHistory")
 

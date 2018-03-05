@@ -24,7 +24,7 @@ Namespace URT
     Public Class VBScript
         Inherits CVBScriptBase
 
-        Private inFloat1, inFloat2, outFloat1, outFloat2 As ConFloat
+        Private inFloat1, inFloat2PointsToinFloat1, outFloat1, outFloat2 As ConFloat
         Private inSize, outCounter As ConInt
         Private inUseUpCounter As ConBool
         Private inArrayBool, inArrayFloat As IURTArray
@@ -40,7 +40,7 @@ Namespace URT
 
                 'Note have deliberataly made inFloat2 the same element as inFloat1
                 inFloat1 = QALUtil.URTScale3(Of ConFloat)("inFloat1", "inFloat1 - Desc", GetType(ConFloatClass).GUID, bInit, 0.0, CmpPtr, , 2228224)
-                inFloat2 = QALUtil.URTScale3(Of ConFloat)("inFloat1", "inFloat2 - Desc", GetType(ConFloatClass).GUID, bInit, 0.0, CmpPtr, , 2228224)
+                inFloat2PointsToinFloat1 = QALUtil.URTScale3(Of ConFloat)("inFloat1", "inFloat2 - Desc", GetType(ConFloatClass).GUID, bInit, 0.0, CmpPtr, , 2228224)
                 inArrayBool = QALUtil.URTArray3("inArrayBool", "inArrayBool - Descs", GetType(ConArrayBoolClass).GUID, nSize, bInit, True, CmpPtr, , 2228224)
                 inSize = QALUtil.URTScale3(Of ConInt)("inSize", "inSize - Desc", GetType(ConIntClass).GUID, bInit, nSize, CmpPtr, , 2228224)
                 outFloat1 = QALUtil.URTScale3(Of ConFloat)("outFloat1", "outFloat1 - Desc", GetType(ConFloatClass).GUID, bInit, 5.0, CmpPtr)
@@ -85,7 +85,7 @@ Namespace URT
                 'as inFloat1 is the same as inFloat2, then this is really the same as 2*infloat1
 
                 If I_inArrayBool(0) And I_inArrayBool(1) Then
-                    outFloat1.Val = inFloat1.Val + inFloat2.Val
+                    outFloat1.Val = inFloat1.Val + inFloat2PointsToinFloat1.Val
                 Else
                     outFloat1.Val = inFloat1.Val * 3.0!
                 End If

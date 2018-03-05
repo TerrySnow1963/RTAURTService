@@ -8,6 +8,8 @@ Imports RTAURTService
 
 
 <TestClass()> Public Class UnitTestSequences
+    Inherits UnitTestCommandsBase
+
     Private _logger As RTAUrtTraceLogger
     Dim _urtVBFB As URTVBQALSimpleScript.URTVBQALSimpleScript
     Dim _seqParams As RTAURTCommandSequenceParameters
@@ -75,14 +77,17 @@ Imports RTAURTService
     <TestMethod()> Public Sub TestLinkedSequenceRecursiveCall()
         Dim seqParams As RTAURTCommandSequenceParameters = MakeLoadedTestSequence1()
 
-        Dim LinkToSeqParams As RTAURTCommandLinkedSequenceParameters = New RTAURTCommandLinkedSequenceParameters(_seqParams.Name)
-        _seqParams.AddCommandParameters(LinkToSeqParams)
+        Dim LinkToSeqParams As RTAURTCommandLinkedSequenceParameters = New RTAURTCommandLinkedSequenceParameters(seqParams.Name)
+        seqParams.AddCommandParameters(LinkToSeqParams)
 
-        Dim cmdResult As ICommandResult
+        TestCommandReturnsDone(LinkToSeqParams)
         'Dim callback As ICommandCallback = CommandCallbacks.LimitRecursionTo(20)
-        Dim callback As ICommandCallback = CommandCallbacks.LimitCommandCallsTo(20)
-        cmdResult = _seqParams.GetCommand.Execute(_urtVBFB, CType(_seqParams, RTAURTCommandParameters), callback)
+        'Dim callback As ICommandCallback = CommandCallbacks.LimitCommandCallsTo(20)
+        'cmdResult = seqParams.GetCommand.Execute(_urtVBFB, CType(_seqParams, RTAURTCommandParameters), callback)
+
         Assert.AreEqual(CInt(20 / 2), _logger.Count)
+
+
     End Sub
 
 End Class
