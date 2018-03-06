@@ -12,6 +12,9 @@ Public Class CommandExecutive
 
     Private _commandStack As Stack(Of String)
 
+    Private Const _DEFAULT_RECURSION_DEPTH As Integer = 5
+    Private _recursionDepth As Integer
+    Private p As ICommandCallback
     ReadOnly Property TotalCommandsExecuted As Integer
 
     Public ReadOnly Property cmdExec As CommandExecutive Implements ICommandContext.cmdExec
@@ -32,6 +35,18 @@ Public Class CommandExecutive
         End Get
     End Property
 
+    Public Property RecursionDepth As Integer
+        Get
+            Return _recursionDepth
+        End Get
+        Set(value As Integer)
+            If value < 1 Then
+                Throw New ArgumentOutOfRangeException("value")
+            End If
+            _recursionDepth = value
+        End Set
+    End Property
+
     Private Sub New()
 
     End Sub
@@ -42,14 +57,16 @@ Public Class CommandExecutive
         _TotalCommandsExecuted = 0
         _currentParams = RTAURTCommandNullParameters.Instance
         _commandStack = New Stack(Of String)
+        _recursionDepth = _DEFAULT_RECURSION_DEPTH
     End Sub
+
 
     Private Sub PreProcessCommand(Of T As IRTAURTCommandParameters)(param As T)
         _currentParams = param
         Dim name As String = param.TryGetRecursiveName
         If name IsNot Nothing Then _commandStack.Push(name)
 
-        If _commandStack.Where(Function(x) x = name).Count > 5 Then
+        If _commandStack.Where(Function(x) x = name).Count > _recursionDepth Then
             _callback = CommandCallbacks.Stop
             RaiseMessage.Raise(_vbfb, "Recursive Limit Reached")
         End If

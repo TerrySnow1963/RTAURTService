@@ -25,23 +25,62 @@ Public Class ScriptDataElementNames
 End Class
 
 Public Class UnitTestCommandsBase
-    Protected Function TestCommandReturnsDone(params As IRTAURTCommandParameters, Optional cmdExec As CommandExecutive = Nothing) As CommandExecutive
+
+    Protected Function MakeCommandExecutiveWithSimpleScript(ByVal recDepth As Integer) As CommandExecutive
+        Assert.IsTrue(recDepth > 0)
+        Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(New RTAUrtTraceLogger)
+        Dim cmdExec As CommandExecutive = New CommandExecutive(urtVBFB)
+        cmdExec.RecursionDepth = recDepth
+        Return cmdExec
+
+    End Function
+
+    Protected Function TestCommandReturnsCode(params As IRTAURTCommandParameters,
+                                              expectedCode As RTAURTCommandResultCode,
+                                              Optional cmdExec As CommandExecutive = Nothing) As CommandExecutive
 
         If cmdExec Is Nothing Then
             Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(New RTAUrtTraceLogger)
-            cmdExec = New CommandExecutive(urtVBFB)
+            cmdExec = New CommandExecutive(urtVBFB, callBack:=Nothing)
         End If
 
         Dim cmdResult As ICommandResult = cmdExec.Invoke(params)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
+        Assert.AreEqual(expectedCode, cmdResult.GetResultCode)
         Return cmdExec
+    End Function
+
+    Protected Function TestCommandReturnsDone(params As IRTAURTCommandParameters, Optional cmdExec As CommandExecutive = Nothing) As CommandExecutive
+
+        'If cmdExec Is Nothing Then
+        '    Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(New RTAUrtTraceLogger)
+        '    cmdExec = New CommandExecutive(urtVBFB)
+        'End If
+
+        'Dim cmdResult As ICommandResult = cmdExec.Invoke(params)
+        'Assert.AreEqual(RTAURTCommandResultCode.CMD_DONE, cmdResult.GetResultCode)
+        'Return cmdExec
+        Return TestCommandReturnsCode(params, RTAURTCommandResultCode.CMD_DONE, cmdExec)
+    End Function
+
+    Protected Function TestCommandReturnsStopped(params As IRTAURTCommandParameters, Optional cmdExec As CommandExecutive = Nothing) As CommandExecutive
+
+        'If cmdExec Is Nothing Then
+        '    Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(New RTAUrtTraceLogger)
+        '    cmdExec = New CommandExecutive(urtVBFB)
+        'End If
+
+        'Dim cmdResult As ICommandResult = cmdExec.Invoke(params)
+        'Assert.AreEqual(RTAURTCommandResultCode.CMD_STOPPED, cmdResult.GetResultCode)
+        'Return cmdExec
+
+        Return TestCommandReturnsCode(params, RTAURTCommandResultCode.CMD_STOPPED, cmdExec)
     End Function
 
     Protected Function TestCommandReturnsError(params As IRTAURTCommandParameters, expectedErrMsg As String, Optional cmdExec As CommandExecutive = Nothing) As CommandExecutive
 
         If cmdExec Is Nothing Then
             Dim urtVBFB = New URTVBQALSimpleScript.URTVBQALSimpleScript(New RTAUrtTraceLogger)
-            cmdExec = New CommandExecutive(urtVBFB)
+            cmdExec = New CommandExecutive(urtVBFB, callBack:=Nothing)
         End If
 
         Dim cmdResult As ICommandResult = cmdExec.Invoke(params)
@@ -187,7 +226,7 @@ End Class
         SetValuesCommandParams.AddValue(Nothing, newElementValue)
 
         TestCommandReturnsError(SetValuesCommandParams, SetValuesCommand.ErrorMessages.CantFindElement)
-        'TestEndOfExecuteVBRun(cmdExec, 0)
+
     End Sub
 
     <TestMethod()> Public Sub TestCommandSetValuesForNothingNameRaisesMessageAfterConnect()
@@ -198,7 +237,7 @@ End Class
         Dim SetValuesCommandParams As New RTAURTCommandSetValuesParameters()
         SetValuesCommandParams.AddValue(Nothing, newElementValue)
 
-        TestCommandReturnsError(SetValuesCommandParams, SetValuesCommand.ErrorMessages.CantFindElement)
+        TestCommandReturnsError(SetValuesCommandParams, RTAURTCommandSetValues.ErrorMessages.CantFindElement)
 
     End Sub
 

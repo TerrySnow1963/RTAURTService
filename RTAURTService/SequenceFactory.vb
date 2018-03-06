@@ -38,12 +38,39 @@ Public Class RTAURTCommandSequence
     Implements RTAURTCommand
 
     Public Function Execute(context As ICommandContext) As ICommandResult Implements RTAURTCommand.Execute
-        Throw New NotImplementedException()
+
+        Dim seqParams As RTAURTCommandSequenceParameters
+        Dim resultCmd As ICommandResult
+
+        'If Not params Is Nothing Then
+        seqParams = CType(context.params, RTAURTCommandSequenceParameters)
+        'If Not seqParams Is Nothing Then
+        'ToDo need to check for recursion
+        For Each cmdParams In seqParams.GetCommandList
+            'resultCmd = cmdParams.GetCommand.Execute(vbfb, cmdParams, callback)
+            resultCmd = context.cmdExec.Invoke(cmdParams)
+            If resultCmd.GetResultCode <> RTAURTCommandResultCode.CMD_DONE Then
+                Return resultCmd
+            End If
+        Next
+        If seqParams.GetCommandList.Count = 0 Then
+            RaiseMessage.Raise(context.vbfb, RTAURTCommandErrorMessages.SequenceErrorNoCommands)
+            Return CommandResults.Error
+        End If
+        'Else
+        '    RaiseMessage.Raise(vbfb, "Sequence Command Error: passed wrong parameter type")
+        '    Return CommandResults.Error
+        'End If
+        'End If
+
+        Return CommandResults.Done
     End Function
 
     Public Function Execute(vbfb As URTVBFunctionBlock,
                             ByVal params As IRTAURTCommandParameters,
                             Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
+        Throw New NotImplementedException
+
         If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return CommandResults.Stopped
 
         Dim seqParams As RTAURTCommandSequenceParameters
@@ -112,13 +139,11 @@ Public Class RTAURTCommandLinkedSequence
 
         seqParams = CType(context.params, RTAURTCommandLinkedSequenceParameters)
 
-        'ToDo need to check for recursion
         Dim linkedSeqParams As RTAURTCommandSequenceParameters = SequenceFactory.GetSequenceByName(seqParams.LinkedSequenceName)
         If linkedSeqParams Is Nothing Then
             RaiseMessage.Raise(context.vbfb, RTAURTCommandErrorMessages.LinkSequenceErrorNoSuchName)
             Return CommandResults.Error
         Else
-            'resultCmd = linkedSeqParams.GetCommand.Execute(context.vbfb, linkedSeqParams, callback)
             resultCmd = context.cmdExec.Invoke(linkedSeqParams)
             Return resultCmd
         End If
@@ -129,30 +154,32 @@ Public Class RTAURTCommandLinkedSequence
     Public Function Execute(vbfb As URTVBFunctionBlock,
                             ByVal params As IRTAURTCommandParameters,
                             Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-        If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return CommandResults.Stopped
+        Throw New NotImplementedException
 
-        Dim seqParams As RTAURTCommandLinkedSequenceParameters
-        Dim resultCmd As ICommandResult
+        'If CommandCallbacks.GetSafeCallbackAndCheckforStop(callback) Then Return CommandResults.Stopped
 
-        If Not params Is Nothing Then
-            seqParams = TryCast(params, RTAURTCommandLinkedSequenceParameters)
-            If Not seqParams Is Nothing Then
-                'ToDo need to check for recursion
-                Dim linkedSeqParams As RTAURTCommandSequenceParameters = SequenceFactory.GetSequenceByName(seqParams.LinkedSequenceName)
-                If linkedSeqParams Is Nothing Then
-                    RaiseMessage.Raise(vbfb, RTAURTCommandErrorMessages.LinkSequenceErrorNoSuchName)
-                    Return CommandResults.Error
-                Else
-                    resultCmd = linkedSeqParams.GetCommand.Execute(vbfb, linkedSeqParams, callback)
-                    Return resultCmd
-                End If
-            Else
-                RaiseMessage.Raise(vbfb, "Sequence Command Error: passed wrong parameter type")
-                Return CommandResults.Error
-            End If
-        End If
+        'Dim seqParams As RTAURTCommandLinkedSequenceParameters
+        'Dim resultCmd As ICommandResult
 
-        Return CommandResults.Done
+        'If Not params Is Nothing Then
+        '    seqParams = TryCast(params, RTAURTCommandLinkedSequenceParameters)
+        '    If Not seqParams Is Nothing Then
+        '        'ToDo need to check for recursion
+        '        Dim linkedSeqParams As RTAURTCommandSequenceParameters = SequenceFactory.GetSequenceByName(seqParams.LinkedSequenceName)
+        '        If linkedSeqParams Is Nothing Then
+        '            RaiseMessage.Raise(vbfb, RTAURTCommandErrorMessages.LinkSequenceErrorNoSuchName)
+        '            Return CommandResults.Error
+        '        Else
+        '            resultCmd = linkedSeqParams.GetCommand.Execute(vbfb, linkedSeqParams, callback)
+        '            Return resultCmd
+        '        End If
+        '    Else
+        '        RaiseMessage.Raise(vbfb, "Sequence Command Error: passed wrong parameter type")
+        '        Return CommandResults.Error
+        '    End If
+        'End If
+
+        'Return CommandResults.Done
     End Function
 End Class
 
