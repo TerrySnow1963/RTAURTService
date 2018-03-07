@@ -3,6 +3,15 @@ Imports UrtTlbLib
 Imports RTAInterfaces
 Imports URT
 
+Public Class ScriptProxyFactory
+    Public Sub New()
+
+    End Sub
+    Public Function MakeProxy(ByVal messageLogger As IRTAUrtMessageLog, Optional historyLogger As IRTAUrtHistoryLog = Nothing) As URTVBFunctionBlock
+        Return New URTVBQALSimpleScript(messageLogger, historyLogger)
+    End Function
+End Class
+
 Public Class URTVBQALSimpleScript
     Inherits RTAURTService.URTVBFunctionBlock
 

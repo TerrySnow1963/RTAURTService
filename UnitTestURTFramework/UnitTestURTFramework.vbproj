@@ -82,6 +82,8 @@
     <Import Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UnitTest1.vb" />
+    <Compile Include="UnitTestVSAScript.vb" />
     <Compile Include="UnitTestCommandExecutive.vb" />
     <Compile Include="UnitTestCommandCallBacks.vb" />
     <Compile Include="UnitTestSequences.vb" />

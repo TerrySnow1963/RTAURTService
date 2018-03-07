@@ -5,21 +5,14 @@ Imports UrtTlbLib
 
 Public MustInherit Class URTVBFunctionBlock
     Inherits CUrtFBBase
-    Private _theScript As CVBScriptBase
-    'Private _logger As IRTAUrtMessageLog
 
     Private Sub New()
-        '_theScript = New URT.VBScript
 
-        'Dim base As CVBScriptBase = _theScript
-
-        'base.CmpPtr = Me
-        '_childElements = New List(Of ConScalarBase)
     End Sub
 
     Public Sub New(ByVal script As CVBScriptBase, ByVal loggr As IRTAUrtMessageLog, ByVal HistLog As IRTAUrtHistoryLog)
-        _theScript = script
-        _theScript.CmpPtr = Me
+
+        script.CmpPtr = Me
 
         Logger = loggr
         HistoryLog = HistLog
@@ -28,15 +21,6 @@ Public MustInherit Class URTVBFunctionBlock
         NumberOfConnectionsExecutions = 0
 
     End Sub
-
-    'Default Public Property Index(x As Integer) As Integer Implements IUrtTreeMember.Index
-    '    Get
-    '        Throw New NotImplementedException()
-    '    End Get
-    '    Set(value As Integer)
-    '        Throw New NotImplementedException()
-    '    End Set
-    'End Property
 
     Public ReadOnly Property NumberOfExecuteExecutions As Integer
     Public ReadOnly Property NumberOfConnectionsExecutions As Integer
