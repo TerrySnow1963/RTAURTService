@@ -95,35 +95,4 @@ Imports URTVBQALSimpleScript
         TestCommandLimitCountCommandStops(params, 3, 3)
     End Sub
 
-    <TestMethod()> Public Sub TestCommandSequenceWithLimitCommandCountCallbackStops()
-        Dim testMsg() As String = {
-            "Test Message 1",
-            "Test Message 2",
-            "Test Message 3",
-            "Test Message 4",
-            "Test Message 5"}
-        Dim params() As IRTAURTCommandParameters = {
-        New RTAURTCommandMessageParameters(testMsg(0)),
-        New RTAURTCommandMessageParameters(testMsg(1)),
-        New RTAURTCommandMessageParameters(testMsg(2)),
-        New RTAURTCommandMessageParameters(testMsg(3)),
-        New RTAURTCommandMessageParameters(testMsg(4))}
-
-        Dim paramsSeq = SequenceFactory.MakeSequence()
-        For Each p In params
-            paramsSeq.AddCommandParameters(p)
-        Next
-
-        Dim logger As RTAUrtTraceLogger = New RTAUrtTraceLogger
-        Dim vbFB As URTVBQALSimpleScript.URTVBQALSimpleScript = New URTVBQALSimpleScript.URTVBQALSimpleScript(logger)
-
-        Dim numberOfCommandCallLimit As Integer = 3
-        Dim callback As ICommandCallback = CommandCallbacks.LimitCommandCallsTo(numberOfCommandCallLimit)
-
-        Dim cmdResult As ICommandResult = paramsSeq.GetCommand.Execute(vbFB, paramsSeq, callback)
-        Assert.AreEqual(RTAURTCommandResultCode.CMD_STOPPED, cmdResult.GetResultCode)
-        Assert.AreEqual(numberOfCommandCallLimit - 1, logger.Count)
-
-    End Sub
-
 End Class

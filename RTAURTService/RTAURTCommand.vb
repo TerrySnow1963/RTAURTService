@@ -11,9 +11,6 @@ Public Interface ICommandContext
 End Interface
 
 Public Interface RTAURTCommand
-    Function Execute(ByVal vbfb As URTVBFunctionBlock,
-                     ByVal params As IRTAURTCommandParameters,
-                     Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult
     Function Execute(ByVal context As ICommandContext) As ICommandResult
 End Interface
 
@@ -249,9 +246,6 @@ Public Class RTAURTNullCommand
         Return CommandResults.Error
     End Function
 
-    Public Function Execute(vbfb As URTVBFunctionBlock, params As IRTAURTCommandParameters, Optional callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-        Return CommandResults.Error
-    End Function
 End Class
 
 Public Class RTAURTCommandConnect
@@ -266,12 +260,6 @@ Public Class RTAURTCommandConnect
 
     End Function
 
-    Public Function Execute(vbfb As URTVBFunctionBlock,
-                            ByVal params As IRTAURTCommandParameters,
-                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-        Throw New NotImplementedException()
-
-    End Function
 End Class
 
 Public Class RTAURTCommandEnableHistory
@@ -306,13 +294,6 @@ Public Class RTAURTCommandEnableHistory
 
         Return CommandResults.Done
     End Function
-
-    Public Function Execute(vbfb As URTVBFunctionBlock,
-                            ByVal params As IRTAURTCommandParameters,
-                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-        Throw New NotImplementedException()
-
-    End Function
 End Class
 
 Public Class RTAURTCommandExecuteVB
@@ -323,23 +304,18 @@ Public Class RTAURTCommandExecuteVB
 
         Dim cmdParams As RTAURTCommandExecuteVBParameters = CType(context.params, RTAURTCommandExecuteVBParameters)
         count = cmdParams.Count
-            If count < 1 Then
-                count = 1
-                RaiseMessage.Raise(context.vbfb, "Count of executions < 1, forced to 1")
-            End If
+        If count < 1 Then
+            count = 1
+            RaiseMessage.Raise(context.vbfb, "Count of executions < 1, forced to 1")
+        End If
 
-            For ii = 0 To count - 1
-                context.vbfb.Execute(0, Nothing)
-                If Not CType(context, ICommandCallback).CanContinue Then Return CommandResults.Stopped
-            Next
+        For ii = 0 To count - 1
+            context.vbfb.Execute(0, Nothing)
+            If Not CType(context, ICommandCallback).CanContinue Then Return CommandResults.Stopped
+        Next
         Return CommandResults.Done
     End Function
 
-    Public Function Execute(vbfb As URTVBFunctionBlock,
-                            ByVal params As IRTAURTCommandParameters,
-                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-        Throw New NotImplementedException()
-    End Function
 End Class
 
 
@@ -431,15 +407,6 @@ Public Class RTAURTCommandSetValues
         Return result
     End Function
 
-    Public Function Execute(vbfb As URTVBFunctionBlock,
-                            ByVal params As IRTAURTCommandParameters,
-                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-
-        Throw New NotImplementedException()
-
-    End Function
-
-
 End Class
 
 Public Class RTAURTCommandMessage
@@ -459,15 +426,6 @@ Public Class RTAURTCommandMessage
         Return CommandResults.Done
     End Function
 
-    Public Function Execute(vbfb As URTVBFunctionBlock,
-                            ByVal params As IRTAURTCommandParameters,
-                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-
-        Throw New NotImplementedException()
-
-        Return CommandResults.Done
-
-    End Function
 End Class
 
 Public Class RTAURTCommandClearLogs
@@ -500,13 +458,6 @@ Public Class RTAURTCommandClearLogs
         Return CommandResults.Done
 
     End Function
-
-    Public Function Execute(vbfb As URTVBFunctionBlock,
-                            ByVal params As IRTAURTCommandParameters,
-                            Optional ByVal callback As ICommandCallback = Nothing) As ICommandResult Implements RTAURTCommand.Execute
-        Throw New NotImplementedException()
-    End Function
-
 
 End Class
 

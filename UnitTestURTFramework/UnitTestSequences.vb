@@ -57,9 +57,10 @@ Imports RTAURTService
 
         Dim seq As RTAURTCommandSequence = New RTAURTCommandSequence
 
-        seq.Execute(_vbfb, CType(_seqParams, RTAURTCommandParameters))
-        Assert.AreEqual(1, _logger.Count)
-        Assert.AreEqual(RTAURTCommandErrorMessages.SequenceErrorNoCommands, _logger.GetLastMessage)
+        Dim cmdExec As CommandExecutive = TestCommandReturnsError(_seqParams, RTAURTCommandErrorMessages.SequenceErrorNoCommands)
+
+        Assert.AreEqual(1, cmdExec.vbfb.Logger.Count)
+
     End Sub
 
     <TestMethod()> Public Sub TestSequenceExecuteWith1MessageCommandsMakes1Message()
@@ -70,9 +71,10 @@ Imports RTAURTService
         Dim testMsg As String = "This is a test"
         Dim MessageCommandParams = New RTAURTCommandMessageParameters(testMsg)
         _seqParams.AddCommandParameters(MessageCommandParams)
-        seq.Execute(_vbfb, CType(_seqParams, RTAURTCommandParameters))
-        Assert.AreEqual(1, _logger.Count)
-        Assert.AreEqual(testMsg, _logger.GetLastMessage)
+        Dim cmdExec As CommandExecutive = TestCommandReturnsDone(_seqParams)
+
+        Assert.AreEqual(1, cmdExec.vbfb.Logger.Count)
+        Assert.AreEqual(testMsg, cmdExec.vbfb.Logger.GetLastMessage)
     End Sub
 
     <TestMethod()> Public Sub TestLinkedSequence()
@@ -97,9 +99,6 @@ Imports RTAURTService
 
         _cmdExec.RecursionDepth = recDepth
         TestCommandReturnsStopped(LinkToSeqParams, _cmdExec)
-        'Dim callback As ICommandCallback = CommandCallbacks.LimitRecursionTo(20)
-        'Dim callback As ICommandCallback = CommandCallbacks.LimitCommandCallsTo(20)
-        'cmdResult = seqParams.GetCommand.Execute(_urtVBFB, CType(_seqParams, RTAURTCommandParameters), callback)
 
         Dim numberOfCommandsInSeq As Integer = 3
 
